@@ -903,7 +903,7 @@ export default function AdminPage() {
                           filteredBookings.map((b) => {
                             const isOneDay = b.days === 1;
                             const whatsappReminder = encodeURIComponent(
-                              `Namaste ${b.customerName}! Gentle reminder from Moti Atya Costume Corner. Your rental for "${b.costumeName}" (Booking: ${b.id}) was for ${b.days} day(s) ending on ${b.endDate}. Please return it to our store to collect your security deposit refund of ₹${b.securityDeposit}. Thank you!`
+                              `Namaste ${b.customerName}! Gentle reminder from Costume Store Fancy dress Rental Shop (Moti Atya). Your rental for "${b.costumeName}" (Booking: ${b.id}) was for ${b.days} day(s) ending on ${b.endDate}. Please return it to our shop (SHOP A1, Ostwal Kiran, Mira Road East • +91 99301 92705) to collect your security deposit refund of ₹${b.securityDeposit}. Thank you!`
                             );
 
                             return (
@@ -1061,7 +1061,7 @@ export default function AdminPage() {
 
                                     <a
                                       href={`https://wa.me/91${b.customerPhone.replace(/[^0-9]/g, "").slice(-10)}?text=${encodeURIComponent(
-                                        `Namaste ${b.customerName}! Gentle return reminder from Moti Atya Costume Corner. Your rental for "${b.costumeName}" (Booking: #${b.id}) was for ${b.days} day(s) ending on ${b.endDate}. Please return it to our shop to collect your refundable security deposit of ₹${b.securityDeposit}. Store: Shop 4, Royal Market, Mira Road (+91 98201 23456). Thank you!`
+                                        `Namaste ${b.customerName}! Gentle return reminder from Costume Store Fancy dress Rental Shop (Moti Atya). Your rental for "${b.costumeName}" (Booking: #${b.id}) was for ${b.days} day(s) ending on ${b.endDate}. Please return it to our shop to collect your refundable security deposit of ₹${b.securityDeposit}. Store: SHOP A1, Ostwal Kiran Apt, opp. Old Petrol Pump, Mira Road East (+91 99301 92705). Thank you!`
                                       )}`}
                                       target="_blank"
                                       rel="noopener noreferrer"

@@ -17,12 +17,11 @@ export default function Hero() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          
-          {/* Left Column: Headline & Action */}
+                  {/* Left Column: Headline & Action */}
           <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
             <div className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-100 to-orange-100 border border-amber-300/80 px-4 py-1.5 rounded-full text-xs font-semibold text-amber-900 shadow-sm animate-fade-up">
               <Sparkles size={14} className="text-amber-600" />
-              <span>Mumbai’s Favorite Festive Costume Rental Store</span>
+              <span>Mira Road's Trusted Costume Rental Shop • ⭐ 4.6 Rating</span>
             </div>
 
             <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-black text-gray-950 tracking-tight leading-[1.15]">
@@ -33,7 +32,7 @@ export default function Hero() {
             <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
               Explore 500+ handcrafted costumes for <strong>Garba & Navratri</strong>, 
               <strong> Ram Leela & Janmashtami</strong>, <strong>School Annual Days</strong>, 
-              mythological performances, and cultural celebrations. Freshly sanitized, 
+              mythological performances, fancy dress, and cultural celebrations. Freshly sanitized, 
               complete with matching jewelry & props.
             </p>
 
@@ -48,7 +47,7 @@ export default function Hero() {
               </Link>
 
               <a
-                href="https://wa.me/919999999999?text=Hi!%20I%20am%20looking%20for%20costumes%20for%20an%20upcoming%20event."
+                href="https://wa.me/919930192705?text=Hi!%20I%20am%20looking%20for%20costumes%20for%20an%20upcoming%20event."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba59] text-white px-7 py-3.5 rounded-full font-bold shadow-md shadow-green-900/10 hover:shadow-lg transition-all hover:scale-105"
@@ -65,15 +64,15 @@ export default function Hero() {
                 <p className="text-xs text-gray-600 font-medium">Distinct Costumes</p>
               </div>
               <div>
-                <p className="text-2xl font-black text-amber-600">₹300</p>
+                <p className="text-2xl font-black text-amber-600">₹200</p>
                 <p className="text-xs text-gray-600 font-medium">Starting Daily Rent</p>
               </div>
               <div>
                 <div className="flex items-center gap-1 text-amber-500 font-black text-xl">
-                  <span>4.9</span>
+                  <span>4.6</span>
                   <Star size={16} className="fill-current" />
                 </div>
-                <p className="text-xs text-gray-600 font-medium">1,200+ Happy Customers</p>
+                <p className="text-xs text-gray-600 font-medium">159 Google Reviews</p>
               </div>
             </div>
           </div>
@@ -123,7 +122,7 @@ export default function Hero() {
                 {/* Floating Badge 2: Quick Pickup */}
                 <div className="absolute top-10 -right-3 bg-white border border-amber-200 shadow-xl rounded-2xl px-3 py-2 flex items-center gap-1.5">
                   <span className="text-sm">📍</span>
-                  <span className="text-xs font-bold text-gray-800">Mumbai Local Pickup</span>
+                  <span className="text-xs font-bold text-gray-800">Mira Road Pickup & Delivery</span>
                 </div>
               </div>
             </div>

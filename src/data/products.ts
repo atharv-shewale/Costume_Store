@@ -1607,6 +1607,637 @@ export const products: Product[] = [
     tags: ["hawaiian","hula dance","tropical","grass skirt","fancy dress","kids","girls"],
     featured: true,
   },
+
+
+  // ─── HALLOWEEN ADDITIONS & UPDATES (PRICE: ₹200 - ₹400 RENT) ─────────────
+  {
+    id: "h-022",
+    name: "Classic Spooky Black Ghoul Robe / Tunic",
+    category: "halloween",
+    price: 200,
+    description:
+      "Jet-black ghoul tunic robe with jagged hemline and sleeves. Lightweight, breathable, and versatile for phantoms, shadows, and spooky characters.",
+    image: IMG("WhatsApp Image 2026-10-09 at 9.58.03 PM (2).jpeg"),
+    tags: ["halloween","black robe","tunic","ghoul","phantom","spooky","budget"],
+  },
+  {
+    id: "h-023",
+    name: "Dramatic Batwing Flared Black Gothic Gown",
+    category: "halloween",
+    price: 400,
+    description:
+      "Full flare jet-black sorceress dress with dramatic flared jagged batwing sleeves and wide jagged spin hem. Perfect for witches, vampires, and gothic queens.",
+    image: IMG("WhatsApp Image 2026-10-09 at 9.58.03 PM (3).jpeg"),
+    tags: ["halloween","batwing","witch","vampire","black dress","flared","girls"],
+    featured: true,
+  },
+  {
+    id: "h-024",
+    name: "Little Witch with Skull Hat & Candy Basket",
+    category: "halloween",
+    price: 350,
+    description:
+      "Cute Halloween witch costume with green collar trim, tall skull-embellished pointed hat, and orange pumpkin trick-or-treat basket.",
+    image: IMG("WhatsApp Image 2026-10-09 at 9.46.37 PM (1).jpeg"),
+    tags: ["witch","halloween","girls","hat","skull","pumpkin"],
+  },
+
+  // ─── TRADITIONAL INDIAN FOLK ADDITIONS ──────────────────────────────────
+  {
+    id: "t-028",
+    name: "North-East Nagaland Folk Costume with Unity Banner",
+    category: "traditional-indian",
+    price: 400,
+    description:
+      "Authentic Naga tribal costume with geometric red-black-yellow wrap, beaded necklace, feathered warrior headdress, and 'Unity in Diversity' banner prop.",
+    image: IMG("WhatsApp Image 2026-10-09 at 9.49.18 PM.jpeg"),
+    tags: ["nagaland","naga","tribal","north east","unity in diversity","kids","traditional"],
+    featured: true,
+  },
+  {
+    id: "t-029",
+    name: "Royal Kashmiri Pheran & Taranga Headdress (Girls)",
+    category: "traditional-indian",
+    price: 450,
+    description:
+      "Richly embroidered Kashmiri velvet pheran with traditional silver coin jewelry, headscarf taranga, and authentic regional ornaments.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.21 PM (1).jpeg"),
+    tags: ["kashmiri","pheran","kashmir","traditional","girls","velvet"],
+    featured: true,
+  },
+  {
+    id: "t-030",
+    name: "Maharashtrian Koli Fisherboy Folk Costume",
+    category: "traditional-indian",
+    price: 350,
+    description:
+      "Authentic Koli dance outfit featuring bright orange-yellow striped kurta, traditional checked lungi/dhoti, red cap, and golden boat oar prop.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.25 PM.jpeg"),
+    tags: ["koli","fisherman","maharashtrian","folk dance","koli dance","boys"],
+    featured: true,
+  },
+
+  // ─── KIDS HISTORICAL LEADERS & MYTHOLOGICAL ADDITIONS ────────────────────
+  {
+    id: "k-049",
+    name: "Shree Ram, Sita, Laxman & Hanuman Kids Group Set",
+    category: "kids-mythological",
+    price: 800,
+    description:
+      "Complete 4-character Ramayana set: Lord Rama with bow, Mata Sita in saffron saree, Lakshmana with bow, and Lord Hanuman with mace and mukut.",
+    image: IMG("WhatsApp Image 2026-10-09 at 9.40.41 PM (2).jpeg"),
+    tags: ["ramayan","ram","sita","laxman","hanuman","kids","group","school event"],
+    featured: true,
+  },
+  {
+    id: "k-050",
+    name: "Lokmanya Bal Gangadhar Tilak Freedom Fighter",
+    category: "kids-mythological",
+    price: 350,
+    description:
+      "Traditional white angrakha kurta, iconic red Pagadi turban, iconic mustache prop, and white dhoti for Lokmanya Tilak fancy dress.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.17 PM (1).jpeg"),
+    tags: ["tilak","freedom fighter","historic","school fancy dress","boys"],
+  },
+  {
+    id: "k-051",
+    name: "Rani Lakshmibai / Jhansi Ki Rani with Sword & Shield",
+    category: "kids-mythological",
+    price: 400,
+    description:
+      "Fierce warrior look with pink Nauvari dhoti, tricolor sash, pearl necklace, golden waistbelt, turban, metallic sword, and shield.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.18 PM.jpeg"),
+    tags: ["rani laxmibai","jhansi ki rani","freedom fighter","sword","shield","girls"],
+    featured: true,
+  },
+  {
+    id: "k-052",
+    name: "Bharat Mata Patriotic Costume with Tricolor Flag",
+    category: "kids-mythological",
+    price: 400,
+    description:
+      "Pristine white saree with golden border, royal crown mukut, golden temple ornaments, and Indian National Flag for patriotic celebrations.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.18 PM (2).jpeg"),
+    tags: ["bharat mata","national flag","tiranga","patriotism","girls","historic"],
+    featured: true,
+  },
+  {
+    id: "k-053",
+    name: "Mahatma Gandhi Costume with Round Specs & Shawl",
+    category: "kids-mythological",
+    price: 300,
+    description:
+      "Authentic Mahatma Gandhi fancy dress costume with white khadi-style dhoti, white shoulder shawl, round spectacles, and peaceful look.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.21 PM.jpeg"),
+    tags: ["gandhi","bapu","mahatma gandhi","freedom fighter","kids","boys"],
+  },
+  {
+    id: "k-054",
+    name: "Swami Vivekananda Saffron Robe & Turban Costume",
+    category: "kids-mythological",
+    price: 350,
+    description:
+      "Regal saffron choga robe with matching pleated saffron turban, waistband, and inspiring look of Swami Vivekananda for annual programs.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.22 PM (1).jpeg"),
+    tags: ["swami vivekananda","vivekananda","saffron","turban","historic","boys"],
+  },
+  {
+    id: "k-055",
+    name: "Netaji Subhash Chandra Bose Military INA Uniform",
+    category: "kids-mythological",
+    price: 350,
+    description:
+      "Historic Indian National Army uniform featuring military jacket, INA officer peaked cap, cross belt, and spectacles.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.23 PM (3).jpeg"),
+    tags: ["subhash chandra bose","netaji","ina","military","freedom fighter","boys"],
+    featured: true,
+  },
+  {
+    id: "k-056",
+    name: "Warrior Prince Arjun with Golden Armor & Dhoti",
+    category: "kids-mythological",
+    price: 450,
+    description:
+      "Grand Mahabharata warrior costume featuring embroidered golden armor koti, royal yellow pleated dhoti, golden mukut, and pearl necklaces.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.24 PM (1).jpeg"),
+    tags: ["arjun","mahabharata","warrior","archer","golden armor","boys"],
+  },
+  {
+    id: "k-057",
+    name: "Little Bholenath / Lord Shiva Costume with Damru & Trishul",
+    category: "kids-mythological",
+    price: 400,
+    description:
+      "Lord Shiva costume featuring faux tiger-print dhoti and sash, serpent snake prop, rudraksha malas, jata wig, trishul, and damru.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.19 PM (2).jpeg"),
+    tags: ["shiva","bholenath","damru","trishul","rudraksha","kids","mythological"],
+    featured: true,
+  },
+  {
+    id: "k-058",
+    name: "Sita, Ram & Laxman Vanvas Trio Costumes",
+    category: "kids-mythological",
+    price: 750,
+    description:
+      "Saffron Vanvas attire set for Lord Rama, Mata Sita, and Lakshmana with marigold flower jewellery, wooden bow props, and rudraksha malas.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.25 PM (1).jpeg"),
+    tags: ["ram","sita","laxman","trio","vanvas","ramayan","kids"],
+    featured: true,
+  },
+
+  // ─── MYTHOLOGICAL (ADULTS / TEENS) ADDITIONS ──────────────────────────────
+  {
+    id: "m-006",
+    name: "Royal Rama & Lakshmana Mythological Costumes (Teens/Adults)",
+    category: "mythological",
+    price: 750,
+    description:
+      "Heavy golden embroidered royal attire for Rama and Lakshmana with ornate golden mukuts, pearl chest ornaments, and colorful angavastrams.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.17 PM.jpeg"),
+    tags: ["ram","lakshman","mythological","royal","mukut","teens","adults"],
+  },
+  {
+    id: "m-007",
+    name: "Ardhanarishvara / Half Shiva Half Parvati Costume",
+    category: "mythological",
+    price: 600,
+    description:
+      "Intricate Ardhanarishwar costume combining the divine masculine (Lord Shiva with rudraksha & tiger skin) and divine feminine (Devi Parvati with silk saree & ornaments).",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.20 PM.jpeg"),
+    tags: ["ardhanarishvara","shiva","parvati","divine","classical dance","mythological"],
+    featured: true,
+  },
+
+  // ─── FESTIVALS & SPECIAL THEMES (FRUITS, VEGGIES, FOOD & HELPERS) ─────────
+  {
+    id: "f-005",
+    name: "Potato / Aloo Fancy Dress Cutout",
+    category: "festival",
+    price: 250,
+    description:
+      "Cute golden-brown round potato tunic costume with shoulder ties for kindergarten and school fancy dress competitions.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.09.35 PM.jpeg"),
+    tags: ["potato","aloo","vegetable","fancy dress","kids","kindergarten"],
+  },
+  {
+    id: "f-006",
+    name: "Bottle Gourd / Lauki (Dudhi) Fancy Dress",
+    category: "festival",
+    price: 250,
+    description:
+      "Bright green smiling bottle gourd (louki / dudhi) tunic cutout with playful face and shoulder ties.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.09.35 PM (1).jpeg"),
+    tags: ["bottle gourd","lauki","dudhi","vegetable","fancy dress","kids"],
+  },
+  {
+    id: "f-007",
+    name: "Beetroot / Chukandar Cutout Costume",
+    category: "festival",
+    price: 250,
+    description:
+      "Vibrant deep magenta beetroot cutout tunic with green leaves for healthy food theme school events.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.09.36 PM.jpeg"),
+    tags: ["beetroot","beet","vegetable","healthy food","kids"],
+  },
+  {
+    id: "f-008",
+    name: "Green Peas / Matar Cutout Costume",
+    category: "festival",
+    price: 250,
+    description:
+      "Fun smiling green pea pod cutout costume with cute round peas design for kids fancy dress.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.09.36 PM (1).jpeg"),
+    tags: ["green peas","matar","vegetable","fancy dress","kids"],
+  },
+  {
+    id: "f-009",
+    name: "Ladyfinger / Bhindi Fancy Dress Cutout",
+    category: "festival",
+    price: 250,
+    description:
+      "Bright green ladyfinger / okra shape cutout costume with friendly face art for school food days.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.09.36 PM (2).jpeg"),
+    tags: ["ladyfinger","bhindi","okra","vegetable","kids"],
+  },
+  {
+    id: "f-010",
+    name: "Juicy Red Tomato Fancy Dress Cutout",
+    category: "festival",
+    price: 250,
+    description:
+      "Round vibrant red tomato cutout tunic with green leaf crown for nursery and primary school shows.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.09.37 PM.jpeg"),
+    tags: ["tomato","tamatar","vegetable","red","kids"],
+  },
+  {
+    id: "f-011",
+    name: "Crunchy Orange Carrot Cutout Costume",
+    category: "festival",
+    price: 250,
+    description:
+      "Tapered orange carrot cutout costume with lush green leafy top for kids vegetable fancy dress.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.09.38 PM.jpeg"),
+    tags: ["carrot","gajar","vegetable","kids","orange"],
+  },
+  {
+    id: "f-012",
+    name: "Sweet Red Apple Fancy Dress Cutout",
+    category: "festival",
+    price: 250,
+    description:
+      "Classic bright red apple cutout tunic with smiling face and green stem for fruit day competitions.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.09.38 PM (1).jpeg"),
+    tags: ["apple","seb","fruit","kids","fancy dress"],
+  },
+  {
+    id: "f-013",
+    name: "Fresh Green Pear Cutout Costume",
+    category: "festival",
+    price: 250,
+    description:
+      "Light green teardrop-shaped pear fruit costume cutout with stem and leaf for school presentations.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.09.38 PM (2).jpeg"),
+    tags: ["pear","nashpati","fruit","kids"],
+  },
+  {
+    id: "f-014",
+    name: "Giant Orange Pumpkin Fancy Dress",
+    category: "festival",
+    price: 250,
+    description:
+      "Broad orange pumpkin cutout tunic for autumn, harvest festival, and vegetable fancy dress.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.09.39 PM.jpeg"),
+    tags: ["pumpkin","kaddu","vegetable","kids"],
+  },
+  {
+    id: "f-015",
+    name: "White Cauliflower / Phool Gobhi Costume",
+    category: "festival",
+    price: 250,
+    description:
+      "Cute white cauliflower florets cutout with leafy green border for healthy vegetables fancy dress.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.09.39 PM (1).jpeg"),
+    tags: ["cauliflower","gobhi","vegetable","kids"],
+  },
+  {
+    id: "f-016",
+    name: "Fresh Green Spinach / Palak Costume",
+    category: "festival",
+    price: 250,
+    description:
+      "Vibrant emerald green spinach bunch cutout representing iron and nutrition for school events.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.09.39 PM (2).jpeg"),
+    tags: ["spinach","palak","vegetable","healthy","kids"],
+  },
+  {
+    id: "f-017",
+    name: "Crisp White Radish / Mooli Costume",
+    category: "festival",
+    price: 250,
+    description:
+      "Tapered white radish tunic cutout with green pointed leaves for vegetable theme days.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.09.40 PM.jpeg"),
+    tags: ["radish","mooli","vegetable","kids","white"],
+  },
+  {
+    id: "f-018",
+    name: "Golden Sweet Corn / Bhutta Costume",
+    category: "festival",
+    price: 250,
+    description:
+      "Yellow cob design sweet corn cutout with green husk leaves for kids fancy dress.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.09.40 PM (1).jpeg"),
+    tags: ["corn","bhutta","maize","vegetable","kids"],
+  },
+  {
+    id: "f-019",
+    name: "Royal Purple Brinjal / Baingan Costume",
+    category: "festival",
+    price: 250,
+    description:
+      "Glossy purple brinjal / eggplant cutout tunic with green calyx stem for vegetable dress-up.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.09.40 PM (2).jpeg"),
+    tags: ["brinjal","baingan","eggplant","vegetable","kids"],
+  },
+  {
+    id: "f-020",
+    name: "Juicy Orange / Santra Cutout Costume",
+    category: "festival",
+    price: 250,
+    description:
+      "Bright citrus orange fruit cutout with cheerful design for fruit theme celebrations.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.09.40 PM (3).jpeg"),
+    tags: ["orange","santra","fruit","kids"],
+  },
+  {
+    id: "f-021",
+    name: "Full-Body Carrot Jumpsuit with Green Leaf Cap",
+    category: "festival",
+    price: 300,
+    description:
+      "Wearable orange full-body carrot jumpsuit costume complete with green hood cap.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.09.41 PM.jpeg"),
+    tags: ["carrot","gajar","jumpsuit","vegetable","kids"],
+  },
+  {
+    id: "f-022",
+    name: "Spicy Green Chilli / Mirchi Costume",
+    category: "festival",
+    price: 250,
+    description:
+      "Curved vivid green chilli pepper cutout tunic with playful smile for school fancy dress.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.09.43 PM.jpeg"),
+    tags: ["green chilly","mirchi","vegetable","kids"],
+  },
+  {
+    id: "f-023",
+    name: "King of Fruits Mango / Aam Costume",
+    category: "festival",
+    price: 250,
+    description:
+      "Golden-yellow Alphonso mango cutout costume representing the King of Fruits.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.09.43 PM (1).jpeg"),
+    tags: ["mango","aam","fruit","king of fruits","kids"],
+  },
+  {
+    id: "f-024",
+    name: "Purple Sweet Grapes / Angoor Costume",
+    category: "festival",
+    price: 250,
+    description:
+      "Cluster of juicy purple grapes cutout tunic for nursery and kindergarten fancy dress.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.09.43 PM (2).jpeg"),
+    tags: ["grapes","angoor","fruit","kids"],
+  },
+  {
+    id: "f-025",
+    name: "Ruby Red Pomegranate / Anar Costume",
+    category: "festival",
+    price: 250,
+    description:
+      "Bright ruby red pomegranate cutout costume with crown top for fruit day presentations.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.09.44 PM.jpeg"),
+    tags: ["pomegranate","anar","fruit","kids"],
+  },
+  {
+    id: "f-026",
+    name: "Full-Body Green Peas Jumpsuit with Pod & Cap",
+    category: "festival",
+    price: 300,
+    description:
+      "Cozy full-body green peas jumpsuit with 3D pea pod chest attachment and matching green cap.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.10.33 PM.jpeg"),
+    tags: ["green peas","matar","jumpsuit","vegetable","kids"],
+  },
+  {
+    id: "f-027",
+    name: "McDonald's French Fries Packet with Cap",
+    category: "festival",
+    price: 300,
+    description:
+      "Eye-catching French Fries pouch costume with golden fries print and matching red 'FRENCH FRIES' chef cap.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.10.33 PM (2).jpeg"),
+    tags: ["french fries","mcdonalds","fast food","fancy dress","kids"],
+    featured: true,
+  },
+  {
+    id: "f-028",
+    name: "Kurkure Masala Munch Packet with Cap",
+    category: "festival",
+    price: 300,
+    description:
+      "Hilarious Kurkure Masala Munch snack pouch costume with crispy snacks graphic and matching red 'KURKURE' cap.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.10.33 PM (3).jpeg"),
+    tags: ["kurkure","snacks","masala munch","food","fancy dress","kids"],
+    featured: true,
+  },
+  {
+    id: "f-029",
+    name: "Maggi 2-Minute Noodles Packet with Cap",
+    category: "festival",
+    price: 300,
+    description:
+      "Iconic yellow Maggi 2-Minute Noodles packet costume with steaming noodles print and yellow 'MAGGI' cap.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.10.34 PM.jpeg"),
+    tags: ["maggi","noodles","food packet","fancy dress","kids"],
+    featured: true,
+  },
+  {
+    id: "f-030",
+    name: "Airline Commercial Pilot Uniform with Cap & Tie",
+    category: "festival",
+    price: 350,
+    description:
+      "Smart pilot costume with white captain shirt, shoulder epaulettes, gold-braided pilot peaked cap, and black tie.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.16 PM.jpeg"),
+    tags: ["pilot","captain","aviation","community helper","profession","boys"],
+    featured: true,
+  },
+  {
+    id: "f-031",
+    name: "Indian Farmer / Kisan Dhoti Kurta with Gamcha",
+    category: "festival",
+    price: 300,
+    description:
+      "Authentic Indian farmer attire with white kurta-dhoti, colorful pagdi turban, shoulder gamcha towel, and sickle/plough look.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.17 PM (2).jpeg"),
+    tags: ["farmer","kisan","community helper","dhoti kurta","kids"],
+  },
+  {
+    id: "f-032",
+    name: "Master Chef Uniform with Apron, Hat & Belan",
+    category: "festival",
+    price: 300,
+    description:
+      "Professional junior chef costume featuring double-breasted chef jacket with black buttons, puffy chef toque hat, and wooden rolling pin.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.19 PM (1).jpeg"),
+    tags: ["chef","cook","baker","profession","community helper","kids"],
+    featured: true,
+  },
+  {
+    id: "f-033",
+    name: "Brave Firefighter Uniform with Helmet",
+    category: "festival",
+    price: 350,
+    description:
+      "Emergency firefighter costume with high-visibility reflective neon stripes, fire rescue jacket, trousers, and firefighter helmet.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.19 PM (3).jpeg"),
+    tags: ["firefighter","fireman","rescue","community helper","kids"],
+  },
+  {
+    id: "f-034",
+    name: "Indian Army Commando / Soldier Camouflage Uniform",
+    category: "festival",
+    price: 350,
+    description:
+      "Brave Indian Army combat dress in military camouflage print with commando beret cap, belt, and medals.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.20 PM (1).jpeg"),
+    tags: ["army","soldier","commando","indian army","camouflage","patriotic","kids"],
+    featured: true,
+  },
+  {
+    id: "f-035",
+    name: "Little Doctor / Surgeon Coat with Stethoscope",
+    category: "festival",
+    price: 300,
+    description:
+      "Classic white doctor lab coat with red medical cross badge, toy stethoscope, and smart healthcare professional look.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.22 PM (3).jpeg"),
+    tags: ["doctor","surgeon","healthcare","community helper","profession","kids"],
+    featured: true,
+  },
+  {
+    id: "f-036",
+    name: "Academic Graduation Gown & Mortarboard Cap",
+    category: "festival",
+    price: 350,
+    description:
+      "Prestigious black graduation robe with red collar sash, graduation coat, and mortarboard cap with tassel for convocation & fancy dress.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.23 PM.jpeg"),
+    tags: ["graduation","degree","convocation","gown","scholar","kids"],
+  },
+  {
+    id: "f-037",
+    name: "Playful Monkey / Bandar Jumpsuit Costume",
+    category: "festival",
+    price: 350,
+    description:
+      "Cute brown monkey jumpsuit with long tail, furry chest, and monkey ears hood for jungle safari fancy dress.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.17 PM (3).jpeg"),
+    tags: ["monkey","bandar","animal","jungle","wildlife","kids"],
+  },
+  {
+    id: "f-038",
+    name: "King of the Jungle Lion Costume with Mane",
+    category: "festival",
+    price: 350,
+    description:
+      "Fierce and cute lion jumpsuit with fluffy faux fur mane hood and tail for wild animal competitions.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.18 PM (1).jpeg"),
+    tags: ["lion","sher","king of jungle","animal","wildlife","kids"],
+    featured: true,
+  },
+  {
+    id: "f-039",
+    name: "Colorful Green Parrot / Tota Costume",
+    category: "festival",
+    price: 350,
+    description:
+      "Bright green parrot jumpsuit with red beak hood, wing-span sleeves, and tail feathers for bird fancy dress.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.19 PM.jpeg"),
+    tags: ["parrot","tota","bird","green","wings","kids"],
+  },
+  {
+    id: "f-040",
+    name: "Tall Giraffe Spotted Jumpsuit with Horns",
+    category: "festival",
+    price: 350,
+    description:
+      "Adorable yellow and brown spotted giraffe costume with long neck hood, ossicone horns, and tail.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.20 PM (2).jpeg"),
+    tags: ["giraffe","safari","animal","jungle","wildlife","kids"],
+  },
+  {
+    id: "f-041",
+    name: "Black & White Striped Zebra Costume",
+    category: "festival",
+    price: 350,
+    description:
+      "Stunning monochrome striped zebra jumpsuit with zebra mane and hooded face for school safari themes.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.21 PM (2).jpeg"),
+    tags: ["zebra","safari","animal","striped","kids"],
+  },
+  {
+    id: "f-042",
+    name: "Royal Bengal Tiger Striped Costume",
+    category: "festival",
+    price: 350,
+    description:
+      "Striking orange and black striped tiger costume representing the national animal of India.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.23 PM (1).jpeg"),
+    tags: ["tiger","bagh","national animal","animal","wildlife","kids"],
+  },
+  {
+    id: "f-043",
+    name: "Fluffy White Rabbit / Bunny Costume",
+    category: "festival",
+    price: 300,
+    description:
+      "Soft and cute white rabbit jumpsuit with tall pink-lined bunny ears and fluffy tail.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.24 PM.jpeg"),
+    tags: ["rabbit","bunny","khargosh","animal","cute","kids"],
+  },
+  {
+    id: "f-044",
+    name: "National Bird Majestic Peacock / Mor Costume",
+    category: "festival",
+    price: 400,
+    description:
+      "Gorgeous royal blue and emerald peacock costume with feathered fan tail and crest crown representing India's national bird.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.24 PM (2).jpeg"),
+    tags: ["peacock","mor","national bird","bird","blue","kids"],
+    featured: true,
+  },
+  {
+    id: "f-045",
+    name: "Traditional Japanese Kimono with Obi Sash (Girls)",
+    category: "festival",
+    price: 400,
+    description:
+      "Elegant traditional Japanese kimono dress with wide floral sleeves, contrasting obi waist sash, and hand fan prop.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.21 PM (3).jpeg"),
+    tags: ["japanese","kimono","japan","international","cultural","girls"],
+  },
+  {
+    id: "f-046",
+    name: "Traditional Chinese Silk Changshan Costume",
+    category: "festival",
+    price: 400,
+    description:
+      "Rich red and gold oriental patterned silk costume with mandarin collar and dragon motifs for international day.",
+    image: IMG("WhatsApp Image 2026-10-10 at 4.47.22 PM (2).jpeg"),
+    tags: ["chinese","oriental","international","cultural","kids"],
+  },
 ];
 
 export const categories = [

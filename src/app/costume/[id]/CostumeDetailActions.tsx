@@ -28,7 +28,7 @@ export default function CostumeDetailActions({ product, whatsappText }: Props) {
 
         {/* WhatsApp Booking */}
         <a
-          href={`https://wa.me/919999999999?text=${whatsappText}`}
+          href={`https://wa.me/919930192705?text=${whatsappText}`}
           target="_blank"
           rel="noopener noreferrer"
           className="w-full flex items-center justify-center gap-2.5 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold py-3 px-6 rounded-2xl shadow-md transition-all hover:scale-[1.02] text-sm"
@@ -40,11 +40,11 @@ export default function CostumeDetailActions({ product, whatsappText }: Props) {
         {/* Quick Phone & Store visit */}
         <div className="flex items-center gap-3">
           <a
-            href="tel:+919820123456"
+            href="tel:+919930192705"
             className="flex-1 flex items-center justify-center gap-2 bg-amber-50 hover:bg-amber-100 text-amber-950 font-bold py-2.5 px-4 rounded-xl border border-amber-200 text-xs transition-colors"
           >
             <Phone size={14} />
-            <span>Call Store (+91 98201 23456)</span>
+            <span>Call Store (+91 99301 92705)</span>
           </a>
           <Link
             href="/#contact"

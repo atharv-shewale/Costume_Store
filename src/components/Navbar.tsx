@@ -58,7 +58,7 @@ export default function Navbar() {
             ))}
             {/* Admin link removed from public navbar as requested */}
             <a
-              href="https://wa.me/919999999999?text=Hi!%20I%20want%20to%20enquire%20about%20costume%20rentals."
+              href="https://wa.me/919930192705?text=Hi!%20I%20want%20to%20enquire%20about%20costume%20rentals."
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 bg-[#9b2335] text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-[#7d1c2a] transition-all hover:scale-105 shadow-md shadow-red-200"
@@ -94,7 +94,7 @@ export default function Navbar() {
               </Link>
             ))}
             <a
-              href="https://wa.me/919999999999?text=Hi!%20I%20want%20to%20enquire%20about%20costume%20rentals."
+              href="https://wa.me/919930192705?text=Hi!%20I%20want%20to%20enquire%20about%20costume%20rentals."
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 bg-[#9b2335] text-white px-4 py-3 rounded-xl font-semibold mt-2"

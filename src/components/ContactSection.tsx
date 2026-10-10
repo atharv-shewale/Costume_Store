@@ -16,9 +16,9 @@ export default function ContactSection() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const text = encodeURIComponent(
-      `Hello Moti Atya! New Rental Inquiry:\n\n*Name:* ${formData.name}\n*Phone:* ${formData.phone}\n*Event Date:* ${formData.eventDate}\n*Costume Needed:* ${formData.costumeRequirement}\n*Note:* ${formData.message}`
+      `Hello! Rental Inquiry for Costume Store Fancy dress Rental Shop:\n\n*Name:* ${formData.name}\n*Phone:* ${formData.phone}\n*Event Date:* ${formData.eventDate}\n*Costume Needed:* ${formData.costumeRequirement}\n*Note:* ${formData.message}`
     );
-    window.open(`https://wa.me/919999999999?text=${text}`, "_blank");
+    window.open(`https://wa.me/919930192705?text=${text}`, "_blank");
     setSubmitted(true);
   };
 
@@ -31,27 +31,40 @@ export default function ContactSection() {
           {/* Store Info */}
           <div className="lg:col-span-5 space-y-8">
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-[#9b2335] bg-red-50 px-3.5 py-1 rounded-full mb-3 inline-block">
-                Visit or Contact
-              </span>
+              <div className="flex flex-wrap items-center gap-2 mb-3">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#9b2335] bg-red-50 px-3.5 py-1 rounded-full inline-block">
+                  Visit or Contact
+                </span>
+                <span className="text-xs font-bold bg-amber-100 text-amber-900 px-3 py-1 rounded-full flex items-center gap-1">
+                  ⭐ 4.6 (159 Google Reviews)
+                </span>
+              </div>
               <h2 className="font-heading text-3xl sm:text-4xl font-black text-gray-900 tracking-tight">
-                Get in Touch with Moti Atya
+                Costume Store Fancy dress Rental Shop
               </h2>
               <p className="text-gray-600 text-sm mt-3 leading-relaxed">
-                Have a special character requirement or want to check costume sizes in person? Give us a call or visit our Mumbai store.
+                Reliable costume rental shop featuring a wide variety of high-quality outfits at reasonable rates. In-store shopping & fast delivery available.
               </p>
             </div>
 
-            <div className="space-y-5">
+            <div className="space-y-4">
               <div className="flex items-start gap-4 p-4 rounded-2xl bg-amber-50/60 border border-amber-100">
                 <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-800 flex items-center justify-center flex-shrink-0">
                   <MapPin size={20} />
                 </div>
-                <div>
-                  <h4 className="font-bold text-gray-900 text-sm">Store Address</h4>
-                  <p className="text-gray-600 text-xs mt-1 leading-relaxed">
-                    Moti Atya Costume Corner, Main Market Road, Mumbai, Maharashtra 400001
+                <div className="space-y-1">
+                  <h4 className="font-bold text-gray-900 text-sm">Store Address (Mira Road East)</h4>
+                  <p className="text-gray-700 text-xs leading-relaxed">
+                    SHOP A1, Ostwal Kiran Apartment, Mira Bhayandar Rd, opp. BHARAT/Old petrol Pump, Mira Road East, Mumbai, Maharashtra 401105
                   </p>
+                  <a
+                    href="https://share.google/fSSm7ezLsgOaMeqPl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs font-bold text-[#9b2335] hover:underline pt-1"
+                  >
+                    <span>📍 Open in Google Maps & Get Directions &rarr;</span>
+                  </a>
                 </div>
               </div>
 
@@ -60,17 +73,23 @@ export default function ContactSection() {
                   <MessageCircle size={20} />
                 </div>
                 <div>
-                  <h4 className="font-bold text-gray-900 text-sm">WhatsApp & Phone</h4>
-                  <p className="text-gray-600 text-xs mt-1">
-                    +91 99999 99999 / +91 98888 88888
+                  <h4 className="font-bold text-gray-900 text-sm">Call & WhatsApp Us</h4>
+                  <p className="text-gray-800 text-xs mt-1 font-semibold">
+                    <a href="tel:+919930192705" className="hover:text-green-700 underline mr-2">
+                      099301 92705
+                    </a>
+                    <span>/</span>
+                    <a href="tel:+919930192705" className="hover:text-green-700 underline ml-2">
+                      +91 99301 92705
+                    </a>
                   </p>
                   <a
-                    href="https://wa.me/919999999999"
+                    href="https://wa.me/919930192705"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-block text-xs font-bold text-green-700 hover:underline mt-1"
+                    className="inline-block text-xs font-bold text-green-700 hover:underline mt-1.5"
                   >
-                    Click to Chat Directly &rarr;
+                    Click to Chat Directly on WhatsApp &rarr;
                   </a>
                 </div>
               </div>
@@ -81,11 +100,14 @@ export default function ContactSection() {
                 </div>
                 <div>
                   <h4 className="font-bold text-gray-900 text-sm">Working Hours</h4>
-                  <p className="text-gray-600 text-xs mt-1">
-                    Monday to Sunday: 10:00 AM – 8:30 PM
+                  <p className="text-gray-700 text-xs mt-1">
+                    <strong>Mon – Sat:</strong> 10:00 AM – 9:00 PM
                   </p>
-                  <p className="text-[11px] text-amber-700 font-medium mt-0.5">
-                    Extended hours during Navratri & Ganesh Utsav!
+                  <p className="text-gray-700 text-xs mt-0.5">
+                    <strong>Sunday:</strong> Opens 12:00 PM – 8:30 PM
+                  </p>
+                  <p className="text-[11px] text-amber-700 font-medium mt-1">
+                    In-Store Trial & Shopping · Prompt Delivery Available!
                   </p>
                 </div>
               </div>

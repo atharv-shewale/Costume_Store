@@ -433,8 +433,8 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
             {/* Actions */}
             <div className="flex flex-col sm:flex-row gap-3">
               <a
-                href={`https://wa.me/919820123456?text=${encodeURIComponent(
-                  `Namaste Moti Atya! I just reserved booking #${confirmedBooking.id} for "${confirmedBooking.costumeName}". My name is ${confirmedBooking.customerName}. Pickup Date: ${confirmedBooking.startDate}. Please confirm pickup timings!`
+                href={`https://wa.me/919930192705?text=${encodeURIComponent(
+                  `Namaste! I just reserved booking #${confirmedBooking.id} for "${confirmedBooking.costumeName}". My name is ${confirmedBooking.customerName}. Pickup Date: ${confirmedBooking.startDate}. Please confirm pickup timings!`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"

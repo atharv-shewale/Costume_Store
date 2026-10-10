@@ -124,7 +124,7 @@ export default function ProductModal({ product, onClose, onBook }: ProductModalP
             )}
 
             <a
-              href={`https://wa.me/919999999999?text=${whatsappText}`}
+              href={`https://wa.me/919930192705?text=${whatsappText}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 w-full bg-[#25D366] hover:bg-[#20ba59] text-white font-semibold py-3 px-4 rounded-xl shadow-md transition-all hover:scale-[1.02] text-sm"
@@ -135,10 +135,10 @@ export default function ProductModal({ product, onClose, onBook }: ProductModalP
 
             <div className="flex items-center gap-2">
               <a
-                href="tel:+919999999999"
+                href="tel:+919930192705"
                 className="flex-1 flex items-center justify-center gap-1.5 border border-amber-300 text-amber-900 hover:bg-amber-50 font-medium py-2.5 px-3 rounded-xl text-xs transition-colors"
               >
-                <Phone size={14} /> Call Store
+                <Phone size={14} /> Call Store (+91 99301 92705)
               </a>
               <Link
                 href={`/costume/${product.id}`}

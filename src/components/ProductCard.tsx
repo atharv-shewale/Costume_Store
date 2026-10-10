@@ -142,7 +142,7 @@ export default function ProductCard({ product, onQuickView, onBook }: ProductCar
             ) : null}
 
             <a
-              href={`https://wa.me/919999999999?text=${whatsappText}`}
+              href={`https://wa.me/919930192705?text=${whatsappText}`}
               target="_blank"
               rel="noopener noreferrer"
               title="Chat on WhatsApp"

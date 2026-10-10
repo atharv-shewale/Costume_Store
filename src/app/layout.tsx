@@ -18,14 +18,14 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Moti Atya Costume Corner – Premium Costume Rentals",
+  title: "Costume Store Fancy dress Rental Shop – Mira Road East, Mumbai",
   description:
-    "Rent stunning Garba, Navratri, mythological, and traditional Indian costumes in Mumbai. Chaniya choli, Ram-Sita sets, Kali Mata, Shiva and more. Affordable prices from ₹300.",
+    "Reliable costume rental shop in Mira Road East featuring a wide variety of high-quality outfits at reasonable rates. Rent Garba, Navratri, mythological, fancy dress, and school annual day costumes.",
   keywords:
-    "costume rental, chaniya choli, garba costume, navratri dress, ram sita costume, hanuman costume, kali mata costume, shiva costume, Mumbai costume rental",
+    "Costume Store Fancy dress Rental Shop, costume rental Mira Road, fancy dress rental Mumbai, chaniya choli rental, navratri dress, ram sita costume, halloween costume, kids fancy dress, Mira Road East",
   openGraph: {
-    title: "Moti Atya Costume Corner",
-    description: "Premium costume rentals for every Indian festival and event.",
+    title: "Costume Store Fancy dress Rental Shop (Moti Atya)",
+    description: "Reliable costume rental shop in Mira Road featuring high-quality outfits at reasonable rates.",
     type: "website",
   },
 };
