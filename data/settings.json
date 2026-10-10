@@ -1,0 +1,17 @@
+{
+  "storeName": "Moti Atya Costume Corner",
+  "storePhone": "+91 98201 23456",
+  "storeAddress": "Shop No. 4, Ground Floor, Royal Market, Mira Bhayandar, Mumbai 401107",
+  "defaultSecurityDeposit": 500,
+  "razorpayKeyId": "rzp_test_MotiAtyaCostumes",
+  "razorpayKeySecret": "mock_secret_key_12345",
+  "razorpayTestMode": true,
+  "upiId": "motiatya@okhdfcbank",
+  "smsGateway": "simulator",
+  "fast2SmsApiKey": "",
+  "twilioSid": "",
+  "twilioAuthToken": "",
+  "twilioFromPhone": "",
+  "autoRemindersEnabled": true,
+  "reminderHoursBefore": 24
+}
