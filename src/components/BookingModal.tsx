@@ -46,6 +46,25 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
   const [error, setError] = useState<string | null>(null);
   const [confirmedBooking, setConfirmedBooking] = useState<any | null>(null);
 
+  const handleCloseAndReload = () => {
+    onClose();
+    if (typeof window !== "undefined") {
+      window.location.reload();
+    }
+  };
+
+  // Auto-refresh page fallback after completed booking if customer does not dismiss
+  useEffect(() => {
+    if (confirmedBooking) {
+      const timer = setTimeout(() => {
+        if (typeof window !== "undefined") {
+          window.location.reload();
+        }
+      }, 12000);
+      return () => clearTimeout(timer);
+    }
+  }, [confirmedBooking]);
+
   // Calculate days & prices
   const dailyRate = typeof product?.price === "number" ? product.price : 550;
   const securityDeposit = 500; // Refundable security deposit
@@ -216,8 +235,8 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
             </h2>
           </div>
           <button
-            onClick={onClose}
-            className="p-2 rounded-full bg-white/20 hover:bg-white/30 text-white transition-transform hover:scale-110"
+            onClick={confirmedBooking ? handleCloseAndReload : onClose}
+            className="p-2 rounded-full bg-white/20 hover:bg-white/30 text-white transition-transform hover:scale-110 cursor-pointer"
             aria-label="Close"
           >
             <X size={20} />
@@ -297,12 +316,16 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
               </a>
 
               <button
-                onClick={onClose}
-                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 py-3.5 px-5 rounded-2xl font-bold transition-all"
+                onClick={handleCloseAndReload}
+                className="flex-1 bg-slate-900 hover:bg-black text-white py-3.5 px-5 rounded-2xl font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
               >
-                Done
+                <CheckCircle2 size={18} />
+                <span>Done & Refresh Store</span>
               </button>
             </div>
+            <p className="text-[11px] text-gray-500 mt-2">
+              Note: Store page will refresh automatically to update costume availability and rental records.
+            </p>
           </div>
         ) : (
           /* Booking Form */

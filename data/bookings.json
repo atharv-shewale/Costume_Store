@@ -1,1 +1,28 @@
-[]
+[
+  {
+    "id": "BK-5386",
+    "costumeId": "g-002",
+    "costumeName": "Mirror-Work Spinning Chaniya",
+    "costumeImage": "/images/WhatsApp%20Image%202026-10-06%20at%208.10.47%20AM.jpeg",
+    "category": "garba-navratri",
+    "customerName": "Madhuri ",
+    "customerPhone": "784239842168",
+    "customerEmail": "atharvshewale19@gmail.com",
+    "customerAddress": "In-store pickup",
+    "deliveryType": "store-pickup",
+    "startDate": "2026-10-10",
+    "endDate": "2026-10-11",
+    "days": 1,
+    "dailyRate": 550,
+    "rentalTotal": 550,
+    "securityDeposit": 500,
+    "totalAmount": 1050,
+    "paymentMethod": "cash",
+    "paymentStatus": "pending",
+    "paymentId": "cash_pickup_1791616910723",
+    "status": "confirmed",
+    "createdAt": "2026-10-10",
+    "notes": "",
+    "reminderSent": false
+  }
+]

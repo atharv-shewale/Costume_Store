@@ -145,20 +145,33 @@ function getInitialSmsLogs(): SmsLog[] {
 ───────────────────────────────────────────────────────────────────────────── */
 
 export function getBookings(): Booking[] {
-  if (memoryBookings) return memoryBookings;
   try {
     if (fs.existsSync(BOOKINGS_FILE)) {
-      memoryBookings = JSON.parse(fs.readFileSync(BOOKINGS_FILE, "utf8"));
-      return memoryBookings!;
+      const parsed = JSON.parse(fs.readFileSync(BOOKINGS_FILE, "utf8"));
+      if (Array.isArray(parsed)) {
+        memoryBookings = parsed;
+        return memoryBookings;
+      }
     }
-  } catch {}
+  } catch (err) {
+    console.warn("Could not read BOOKINGS_FILE:", err);
+  }
+
   try {
     if (fs.existsSync(BUNDLED_BOOKINGS_FILE)) {
-      memoryBookings = JSON.parse(fs.readFileSync(BUNDLED_BOOKINGS_FILE, "utf8"));
-      safeWriteJson(BOOKINGS_FILE, memoryBookings);
-      return memoryBookings!;
+      const parsed = JSON.parse(fs.readFileSync(BUNDLED_BOOKINGS_FILE, "utf8"));
+      if (Array.isArray(parsed)) {
+        memoryBookings = parsed;
+        safeWriteJson(BOOKINGS_FILE, memoryBookings);
+        return memoryBookings;
+      }
     }
   } catch {}
+
+  if (memoryBookings && Array.isArray(memoryBookings)) {
+    return memoryBookings;
+  }
+
   memoryBookings = getInitialBookings();
   safeWriteJson(BOOKINGS_FILE, memoryBookings);
   return memoryBookings;
@@ -174,6 +187,9 @@ export function saveBooking(booking: Booking): Booking {
   }
   memoryBookings = bookings;
   safeWriteJson(BOOKINGS_FILE, bookings);
+  if (!IS_SERVERLESS) {
+    safeWriteJson(BUNDLED_BOOKINGS_FILE, bookings);
+  }
   return booking;
 }
 
@@ -192,6 +208,9 @@ export function updateBookingStatus(
   }
   memoryBookings = bookings;
   safeWriteJson(BOOKINGS_FILE, bookings);
+  if (!IS_SERVERLESS) {
+    safeWriteJson(BUNDLED_BOOKINGS_FILE, bookings);
+  }
   return booking;
 }
 
@@ -200,20 +219,28 @@ export function updateBookingStatus(
 ───────────────────────────────────────────────────────────────────────────── */
 
 export function getInventoryOverrides(): Record<string, InventoryOverride> {
-  if (memoryInventory) return memoryInventory;
   try {
     if (fs.existsSync(INVENTORY_FILE)) {
-      memoryInventory = JSON.parse(fs.readFileSync(INVENTORY_FILE, "utf8"));
-      return memoryInventory!;
+      const parsed = JSON.parse(fs.readFileSync(INVENTORY_FILE, "utf8"));
+      if (parsed && typeof parsed === "object") {
+        memoryInventory = parsed;
+        return memoryInventory!;
+      }
     }
   } catch {}
+
   try {
     if (fs.existsSync(BUNDLED_INVENTORY_FILE)) {
-      memoryInventory = JSON.parse(fs.readFileSync(BUNDLED_INVENTORY_FILE, "utf8"));
-      safeWriteJson(INVENTORY_FILE, memoryInventory);
-      return memoryInventory!;
+      const parsed = JSON.parse(fs.readFileSync(BUNDLED_INVENTORY_FILE, "utf8"));
+      if (parsed && typeof parsed === "object") {
+        memoryInventory = parsed;
+        safeWriteJson(INVENTORY_FILE, memoryInventory);
+        return memoryInventory!;
+      }
     }
   } catch {}
+
+  if (memoryInventory) return memoryInventory;
   memoryInventory = {};
   return memoryInventory;
 }
@@ -259,20 +286,31 @@ export function getLiveProducts(): (Product & { isAvailable?: boolean; liveDepos
 ───────────────────────────────────────────────────────────────────────────── */
 
 export function getSmsLogs(): SmsLog[] {
-  if (memorySmsLogs) return memorySmsLogs;
   try {
     if (fs.existsSync(SMS_LOGS_FILE)) {
-      memorySmsLogs = JSON.parse(fs.readFileSync(SMS_LOGS_FILE, "utf8"));
-      return memorySmsLogs!;
+      const parsed = JSON.parse(fs.readFileSync(SMS_LOGS_FILE, "utf8"));
+      if (Array.isArray(parsed)) {
+        memorySmsLogs = parsed;
+        return memorySmsLogs;
+      }
     }
   } catch {}
+
   try {
     if (fs.existsSync(BUNDLED_SMS_LOGS_FILE)) {
-      memorySmsLogs = JSON.parse(fs.readFileSync(BUNDLED_SMS_LOGS_FILE, "utf8"));
-      safeWriteJson(SMS_LOGS_FILE, memorySmsLogs);
-      return memorySmsLogs!;
+      const parsed = JSON.parse(fs.readFileSync(BUNDLED_SMS_LOGS_FILE, "utf8"));
+      if (Array.isArray(parsed)) {
+        memorySmsLogs = parsed;
+        safeWriteJson(SMS_LOGS_FILE, memorySmsLogs);
+        return memorySmsLogs;
+      }
     }
   } catch {}
+
+  if (memorySmsLogs && Array.isArray(memorySmsLogs)) {
+    return memorySmsLogs;
+  }
+
   memorySmsLogs = getInitialSmsLogs();
   safeWriteJson(SMS_LOGS_FILE, memorySmsLogs);
   return memorySmsLogs;
@@ -288,6 +326,9 @@ export function logSms(log: Omit<SmsLog, "id" | "timestamp">): SmsLog {
   logs.unshift(newLog);
   memorySmsLogs = logs;
   safeWriteJson(SMS_LOGS_FILE, logs);
+  if (!IS_SERVERLESS) {
+    safeWriteJson(BUNDLED_SMS_LOGS_FILE, logs);
+  }
   return newLog;
 }
 
@@ -296,20 +337,28 @@ export function logSms(log: Omit<SmsLog, "id" | "timestamp">): SmsLog {
 ───────────────────────────────────────────────────────────────────────────── */
 
 export function getSettings(): AdminSettings {
-  if (memorySettings) return memorySettings;
   try {
     if (fs.existsSync(SETTINGS_FILE)) {
-      memorySettings = { ...defaultSettings, ...JSON.parse(fs.readFileSync(SETTINGS_FILE, "utf8")) };
-      return memorySettings!;
+      const parsed = JSON.parse(fs.readFileSync(SETTINGS_FILE, "utf8"));
+      if (parsed && typeof parsed === "object") {
+        memorySettings = { ...defaultSettings, ...parsed };
+        return memorySettings!;
+      }
     }
   } catch {}
+
   try {
     if (fs.existsSync(BUNDLED_SETTINGS_FILE)) {
-      memorySettings = { ...defaultSettings, ...JSON.parse(fs.readFileSync(BUNDLED_SETTINGS_FILE, "utf8")) };
-      safeWriteJson(SETTINGS_FILE, memorySettings);
-      return memorySettings!;
+      const parsed = JSON.parse(fs.readFileSync(BUNDLED_SETTINGS_FILE, "utf8"));
+      if (parsed && typeof parsed === "object") {
+        memorySettings = { ...defaultSettings, ...parsed };
+        safeWriteJson(SETTINGS_FILE, memorySettings);
+        return memorySettings!;
+      }
     }
   } catch {}
+
+  if (memorySettings) return memorySettings;
   memorySettings = defaultSettings;
   safeWriteJson(SETTINGS_FILE, memorySettings);
   return memorySettings;
@@ -320,6 +369,9 @@ export function updateSettings(settings: Partial<AdminSettings>): AdminSettings 
   const updated = { ...current, ...settings };
   memorySettings = updated;
   safeWriteJson(SETTINGS_FILE, updated);
+  if (!IS_SERVERLESS) {
+    safeWriteJson(BUNDLED_SETTINGS_FILE, updated);
+  }
   return updated;
 }
 

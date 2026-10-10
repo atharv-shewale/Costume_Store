@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Link from "next/link";
 import {
   DollarSign,
@@ -108,6 +108,11 @@ export default function AdminPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
+  // Live Auto-Refresh State
+  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
+  const [lastSyncedTime, setLastSyncedTime] = useState<string>("");
+  const prevBookingsCountRef = useRef<number | null>(null);
+
   // Search & Filters
   const [bookingSearch, setBookingSearch] = useState("");
   const [bookingStatusFilter, setBookingStatusFilter] = useState("all");
@@ -139,35 +144,55 @@ export default function AdminPage() {
     setTimeout(() => setToastMsg(null), 4000);
   };
 
-  // Fetch all data
-  const fetchData = async () => {
+  // Fetch all data with optional silent auto-syncing
+  const fetchData = useCallback(async (isSilent = false) => {
     try {
-      setRefreshing(true);
+      if (!isSilent) setRefreshing(true);
 
+      const ts = Date.now();
       const [resBookings, resReminders, resSettings, resInventory] = await Promise.all([
-        fetch("/api/bookings"),
-        fetch("/api/reminders/send"),
-        fetch("/api/settings"),
-        fetch("/api/inventory"),
+        fetch(`/api/bookings?_t=${ts}`, { cache: "no-store", headers: { "Cache-Control": "no-cache" } }),
+        fetch(`/api/reminders/send?_t=${ts}`, { cache: "no-store", headers: { "Cache-Control": "no-cache" } }),
+        fetch(`/api/settings?_t=${ts}`, { cache: "no-store", headers: { "Cache-Control": "no-cache" } }),
+        fetch(`/api/inventory?_t=${ts}`, { cache: "no-store", headers: { "Cache-Control": "no-cache" } }),
       ]);
 
-      const dataBookings = await resBookings.json();
-      const dataReminders = await resReminders.json();
-      const dataSettings = await resSettings.json();
-      const dataInventory = await resInventory.json();
+      const [dataBookings, dataReminders, dataSettings, dataInventory] = await Promise.all([
+        resBookings.json(),
+        resReminders.json(),
+        resSettings.json(),
+        resInventory.json(),
+      ]);
 
-      if (dataBookings.success) setBookings(dataBookings.bookings);
+      if (dataBookings.success && Array.isArray(dataBookings.bookings)) {
+        if (
+          prevBookingsCountRef.current !== null &&
+          dataBookings.bookings.length > prevBookingsCountRef.current
+        ) {
+          const newOrdersCount = dataBookings.bookings.length - prevBookingsCountRef.current;
+          const newest = dataBookings.bookings[0];
+          showToast(
+            `🔔 ${newOrdersCount} New Order Received: #${newest.id} - ${newest.customerName} (${newest.costumeName})`
+          );
+        }
+        prevBookingsCountRef.current = dataBookings.bookings.length;
+        setBookings(dataBookings.bookings);
+      }
+
       if (dataReminders.success) setSmsLogs(dataReminders.logs || []);
       if (dataSettings.success) setSettings(dataSettings.settings);
       if (dataInventory.success) setLiveProducts(dataInventory.products || []);
+
+      const now = new Date();
+      setLastSyncedTime(now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
     } catch (err) {
       console.error("Error loading admin data:", err);
-      showToast("Error connecting to database");
+      if (!isSilent) showToast("Error connecting to database");
     } finally {
       setLoading(false);
-      setRefreshing(false);
+      if (!isSilent) setRefreshing(false);
     }
-  };
+  }, []);
 
   const [currentDateStr, setCurrentDateStr] = useState("2026-10-10");
 
@@ -186,7 +211,6 @@ export default function AdminPage() {
         const data = await res.json();
         if (data.authenticated) {
           setIsAuthenticated(true);
-          fetchData();
         } else {
           setIsAuthenticated(false);
           setLoading(false);
@@ -199,6 +223,23 @@ export default function AdminPage() {
 
     verifyAuth();
   }, []);
+
+  // Real-time polling loop when authenticated
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    // Fetch immediately on authentication
+    fetchData(false);
+
+    // Keep continuously refreshing every 4.5 seconds for incoming orders
+    const interval = setInterval(() => {
+      if (autoRefreshEnabled) {
+        fetchData(true);
+      }
+    }, 4500);
+
+    return () => clearInterval(interval);
+  }, [isAuthenticated, autoRefreshEnabled, fetchData]);
 
   const handleLogout = async () => {
     try {
@@ -418,14 +459,33 @@ export default function AdminPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+              {/* Live Auto-Refresh Status Badge */}
               <button
-                onClick={fetchData}
-                disabled={refreshing}
-                className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-2 rounded-xl transition-all cursor-pointer"
+                type="button"
+                onClick={() => setAutoRefreshEnabled(!autoRefreshEnabled)}
+                title="Click to toggle auto-refresh polling"
+                className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-bold transition-all cursor-pointer shadow-xs ${
+                  autoRefreshEnabled
+                    ? "bg-emerald-50 border-emerald-200 text-emerald-800 hover:bg-emerald-100"
+                    : "bg-slate-100 border-slate-200 text-slate-500 hover:bg-slate-200"
+                }`}
               >
-                <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
-                <span>{refreshing ? "Syncing..." : "Refresh"}</span>
+                <span className={`w-2 h-2 rounded-full shrink-0 ${autoRefreshEnabled ? "bg-emerald-500 animate-pulse" : "bg-slate-400"}`} />
+                <span className="hidden sm:inline">{autoRefreshEnabled ? "Live Auto-Sync: 4.5s" : "Auto-Sync Paused"}</span>
+                <span className="sm:hidden">{autoRefreshEnabled ? "Live 4.5s" : "Paused"}</span>
+                {lastSyncedTime && <span className="text-[10px] text-emerald-700/70 font-medium">({lastSyncedTime})</span>}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => fetchData(false)}
+                disabled={refreshing}
+                className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-2 rounded-xl transition-all cursor-pointer border border-slate-200"
+                title="Manually trigger immediate sync"
+              >
+                <RefreshCw size={14} className={refreshing ? "animate-spin text-[#9b2335]" : ""} />
+                <span>{refreshing ? "Syncing..." : "Sync Now"}</span>
               </button>
 
               <Link

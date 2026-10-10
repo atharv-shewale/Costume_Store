@@ -24,7 +24,16 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    return NextResponse.json({ success: true, bookings });
+    return NextResponse.json(
+      { success: true, bookings },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
+          Pragma: "no-cache",
+          Expires: "0",
+        },
+      }
+    );
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }

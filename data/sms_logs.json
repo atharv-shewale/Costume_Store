@@ -1,1 +1,13 @@
-[]
+[
+  {
+    "bookingId": "BK-5386",
+    "customerName": "Madhuri ",
+    "phone": "784239842168",
+    "type": "booking-confirmation",
+    "message": "Namaste Madhuri ! Your costume booking #BK-5386 for \"Mirror-Work Spinning Chaniya\" is confirmed for 2026-10-10 to 2026-10-11. Total: Rs.1050 (incl. Rs.500 refundable deposit). Store: Moti Atya Costume Corner, Mumbai (+91 98201 23456).",
+    "status": "delivered",
+    "gateway": "simulator",
+    "id": "sms-1791616910746-794",
+    "timestamp": "2026-10-10 07:21:50"
+  }
+]

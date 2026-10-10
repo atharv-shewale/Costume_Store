@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getBookings, saveBooking, getSmsLogs } from "@/lib/db";
 import { sendReturnReminderSms, sendOverdueAlertSms, sendBookingConfirmationSms } from "@/lib/sms";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const logs = getSmsLogs();
     const bookings = getBookings();
@@ -12,12 +12,19 @@ export async function GET() {
     const dueToday = bookings.filter((b) => b.endDate === todayStr && b.status === "picked-up");
     const overdue = bookings.filter((b) => b.endDate < todayStr && (b.status === "picked-up" || b.status === "overdue"));
 
-    return NextResponse.json({
-      success: true,
-      logs,
-      dueToday,
-      overdue,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        logs,
+        dueToday,
+        overdue,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
+        },
+      }
+    );
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
