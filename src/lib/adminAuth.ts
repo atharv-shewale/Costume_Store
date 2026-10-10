@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import os from "os";
 import crypto from "crypto";
 import { sendSms } from "./sms";
 import { getSettings } from "./db";
@@ -24,15 +25,27 @@ export interface AdminSecurityConfig {
   };
 }
 
-const DATA_DIR = path.join(process.cwd(), "data");
+const BUNDLED_DATA_DIR = path.join(process.cwd(), "data");
+const IS_SERVERLESS =
+  !!process.env.VERCEL ||
+  !!process.env.AWS_LAMBDA_FUNCTION_NAME ||
+  process.cwd().startsWith("/var/task");
+const DATA_DIR = IS_SERVERLESS ? path.join(os.tmpdir(), "moti_atya_data") : BUNDLED_DATA_DIR;
 const SECURITY_FILE = path.join(DATA_DIR, "admin_security.json");
+const BUNDLED_SECURITY_FILE = path.join(BUNDLED_DATA_DIR, "admin_security.json");
 
 export const ADMIN_PHONE_NUMBER = "9930192705";
 export const DEFAULT_PASSCODE = "MotiAtya@2026";
 
+let inMemorySecurityConfig: AdminSecurityConfig | null = null;
+
 function ensureDataDir() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+  } catch {
+    // In read-only environments, ignore directory creation errors
   }
 }
 
@@ -51,29 +64,46 @@ function getInitialSecurityConfig(): AdminSecurityConfig {
 }
 
 export function getSecurityConfig(): AdminSecurityConfig {
-  ensureDataDir();
-  if (!fs.existsSync(SECURITY_FILE)) {
-    const initial = getInitialSecurityConfig();
-    fs.writeFileSync(SECURITY_FILE, JSON.stringify(initial, null, 2), "utf8");
-    return initial;
+  if (inMemorySecurityConfig) {
+    return inMemorySecurityConfig;
   }
+
+  // 1. Try reading from writable DATA_DIR
   try {
-    const raw = fs.readFileSync(SECURITY_FILE, "utf8");
-    const parsed = JSON.parse(raw);
-    // Ensure admin phone is set to required number
-    if (!parsed.adminPhone) parsed.adminPhone = ADMIN_PHONE_NUMBER;
-    return parsed;
-  } catch (err) {
-    console.error("Error reading admin security config, restoring initial:", err);
-    const initial = getInitialSecurityConfig();
-    fs.writeFileSync(SECURITY_FILE, JSON.stringify(initial, null, 2), "utf8");
-    return initial;
-  }
+    if (fs.existsSync(SECURITY_FILE)) {
+      const raw = fs.readFileSync(SECURITY_FILE, "utf8");
+      inMemorySecurityConfig = JSON.parse(raw);
+      if (!inMemorySecurityConfig!.adminPhone) inMemorySecurityConfig!.adminPhone = ADMIN_PHONE_NUMBER;
+      return inMemorySecurityConfig!;
+    }
+  } catch {}
+
+  // 2. Try reading from BUNDLED_SECURITY_FILE
+  try {
+    if (fs.existsSync(BUNDLED_SECURITY_FILE)) {
+      const raw = fs.readFileSync(BUNDLED_SECURITY_FILE, "utf8");
+      inMemorySecurityConfig = JSON.parse(raw);
+      if (!inMemorySecurityConfig!.adminPhone) inMemorySecurityConfig!.adminPhone = ADMIN_PHONE_NUMBER;
+      saveSecurityConfig(inMemorySecurityConfig!);
+      return inMemorySecurityConfig!;
+    }
+  } catch {}
+
+  // 3. Fallback to default
+  inMemorySecurityConfig = getInitialSecurityConfig();
+  saveSecurityConfig(inMemorySecurityConfig);
+  return inMemorySecurityConfig;
 }
 
 export function saveSecurityConfig(config: AdminSecurityConfig): void {
-  ensureDataDir();
-  fs.writeFileSync(SECURITY_FILE, JSON.stringify(config, null, 2), "utf8");
+  inMemorySecurityConfig = config;
+  try {
+    ensureDataDir();
+    fs.writeFileSync(SECURITY_FILE, JSON.stringify(config, null, 2), "utf8");
+  } catch (err) {
+    // On Vercel / serverless with read-only fs, config is safely retained in inMemorySecurityConfig
+    console.warn("Notice: Saved security config in serverless memory:", err);
+  }
 }
 
 /**

@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import os from "os";
 import { products, Product } from "@/data/products";
 
 export interface Booking {
@@ -69,18 +70,46 @@ export interface AdminSettings {
   reminderHoursBefore: number; // e.g. 24 hours before return
 }
 
-const DATA_DIR = path.join(process.cwd(), "data");
+const BUNDLED_DATA_DIR = path.join(process.cwd(), "data");
+const IS_SERVERLESS =
+  !!process.env.VERCEL ||
+  !!process.env.AWS_LAMBDA_FUNCTION_NAME ||
+  process.cwd().startsWith("/var/task");
+const DATA_DIR = IS_SERVERLESS ? path.join(os.tmpdir(), "moti_atya_data") : BUNDLED_DATA_DIR;
 
 function ensureDataDir() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-  }
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+  } catch {}
 }
 
 const BOOKINGS_FILE = path.join(DATA_DIR, "bookings.json");
+const BUNDLED_BOOKINGS_FILE = path.join(BUNDLED_DATA_DIR, "bookings.json");
+
 const INVENTORY_FILE = path.join(DATA_DIR, "inventory_overrides.json");
+const BUNDLED_INVENTORY_FILE = path.join(BUNDLED_DATA_DIR, "inventory_overrides.json");
+
 const SMS_LOGS_FILE = path.join(DATA_DIR, "sms_logs.json");
+const BUNDLED_SMS_LOGS_FILE = path.join(BUNDLED_DATA_DIR, "sms_logs.json");
+
 const SETTINGS_FILE = path.join(DATA_DIR, "settings.json");
+const BUNDLED_SETTINGS_FILE = path.join(BUNDLED_DATA_DIR, "settings.json");
+
+let memoryBookings: Booking[] | null = null;
+let memoryInventory: Record<string, InventoryOverride> | null = null;
+let memorySmsLogs: SmsLog[] | null = null;
+let memorySettings: AdminSettings | null = null;
+
+function safeWriteJson(filePath: string, data: any) {
+  try {
+    ensureDataDir();
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
+  } catch (err) {
+    console.warn(`Filesystem write skipped (${filePath}):`, err);
+  }
+}
 
 // Default initial settings
 const defaultSettings: AdminSettings = {
@@ -320,32 +349,35 @@ function getInitialSmsLogs(): SmsLog[] {
 ───────────────────────────────────────────────────────────────────────────── */
 
 export function getBookings(): Booking[] {
-  ensureDataDir();
-  if (!fs.existsSync(BOOKINGS_FILE)) {
-    const initial = getInitialBookings();
-    fs.writeFileSync(BOOKINGS_FILE, JSON.stringify(initial, null, 2), "utf8");
-    return initial;
-  }
+  if (memoryBookings) return memoryBookings;
   try {
-    const raw = fs.readFileSync(BOOKINGS_FILE, "utf8");
-    return JSON.parse(raw);
-  } catch (err) {
-    console.error("Error reading bookings file:", err);
-    return getInitialBookings();
-  }
+    if (fs.existsSync(BOOKINGS_FILE)) {
+      memoryBookings = JSON.parse(fs.readFileSync(BOOKINGS_FILE, "utf8"));
+      return memoryBookings!;
+    }
+  } catch {}
+  try {
+    if (fs.existsSync(BUNDLED_BOOKINGS_FILE)) {
+      memoryBookings = JSON.parse(fs.readFileSync(BUNDLED_BOOKINGS_FILE, "utf8"));
+      safeWriteJson(BOOKINGS_FILE, memoryBookings);
+      return memoryBookings!;
+    }
+  } catch {}
+  memoryBookings = getInitialBookings();
+  safeWriteJson(BOOKINGS_FILE, memoryBookings);
+  return memoryBookings;
 }
 
 export function saveBooking(booking: Booking): Booking {
-  ensureDataDir();
   const bookings = getBookings();
-  // If exists, update; else prepend
   const idx = bookings.findIndex((b) => b.id === booking.id);
   if (idx >= 0) {
     bookings[idx] = booking;
   } else {
     bookings.unshift(booking);
   }
-  fs.writeFileSync(BOOKINGS_FILE, JSON.stringify(bookings, null, 2), "utf8");
+  memoryBookings = bookings;
+  safeWriteJson(BOOKINGS_FILE, bookings);
   return booking;
 }
 
@@ -354,7 +386,6 @@ export function updateBookingStatus(
   status: Booking["status"],
   paymentStatus?: Booking["paymentStatus"]
 ): Booking | null {
-  ensureDataDir();
   const bookings = getBookings();
   const booking = bookings.find((b) => b.id === id);
   if (!booking) return null;
@@ -363,7 +394,8 @@ export function updateBookingStatus(
   if (paymentStatus) {
     booking.paymentStatus = paymentStatus;
   }
-  fs.writeFileSync(BOOKINGS_FILE, JSON.stringify(bookings, null, 2), "utf8");
+  memoryBookings = bookings;
+  safeWriteJson(BOOKINGS_FILE, bookings);
   return booking;
 }
 
@@ -372,17 +404,22 @@ export function updateBookingStatus(
 ───────────────────────────────────────────────────────────────────────────── */
 
 export function getInventoryOverrides(): Record<string, InventoryOverride> {
-  ensureDataDir();
-  if (!fs.existsSync(INVENTORY_FILE)) {
-    return {};
-  }
+  if (memoryInventory) return memoryInventory;
   try {
-    const raw = fs.readFileSync(INVENTORY_FILE, "utf8");
-    return JSON.parse(raw);
-  } catch (err) {
-    console.error("Error reading inventory overrides:", err);
-    return {};
-  }
+    if (fs.existsSync(INVENTORY_FILE)) {
+      memoryInventory = JSON.parse(fs.readFileSync(INVENTORY_FILE, "utf8"));
+      return memoryInventory!;
+    }
+  } catch {}
+  try {
+    if (fs.existsSync(BUNDLED_INVENTORY_FILE)) {
+      memoryInventory = JSON.parse(fs.readFileSync(BUNDLED_INVENTORY_FILE, "utf8"));
+      safeWriteJson(INVENTORY_FILE, memoryInventory);
+      return memoryInventory!;
+    }
+  } catch {}
+  memoryInventory = {};
+  return memoryInventory;
 }
 
 export function updateInventoryPrice(
@@ -392,7 +429,6 @@ export function updateInventoryPrice(
   isAvailable?: boolean,
   isFeatured?: boolean
 ): InventoryOverride {
-  ensureDataDir();
   const overrides = getInventoryOverrides();
   overrides[costumeId] = {
     id: costumeId,
@@ -402,7 +438,8 @@ export function updateInventoryPrice(
     isFeatured: isFeatured !== undefined ? isFeatured : overrides[costumeId]?.isFeatured,
     updatedAt: new Date().toISOString(),
   };
-  fs.writeFileSync(INVENTORY_FILE, JSON.stringify(overrides, null, 2), "utf8");
+  memoryInventory = overrides;
+  safeWriteJson(INVENTORY_FILE, overrides);
   return overrides[costumeId];
 }
 
@@ -426,23 +463,26 @@ export function getLiveProducts(): (Product & { isAvailable?: boolean; liveDepos
 ───────────────────────────────────────────────────────────────────────────── */
 
 export function getSmsLogs(): SmsLog[] {
-  ensureDataDir();
-  if (!fs.existsSync(SMS_LOGS_FILE)) {
-    const initial = getInitialSmsLogs();
-    fs.writeFileSync(SMS_LOGS_FILE, JSON.stringify(initial, null, 2), "utf8");
-    return initial;
-  }
+  if (memorySmsLogs) return memorySmsLogs;
   try {
-    const raw = fs.readFileSync(SMS_LOGS_FILE, "utf8");
-    return JSON.parse(raw);
-  } catch (err) {
-    console.error("Error reading sms logs:", err);
-    return getInitialSmsLogs();
-  }
+    if (fs.existsSync(SMS_LOGS_FILE)) {
+      memorySmsLogs = JSON.parse(fs.readFileSync(SMS_LOGS_FILE, "utf8"));
+      return memorySmsLogs!;
+    }
+  } catch {}
+  try {
+    if (fs.existsSync(BUNDLED_SMS_LOGS_FILE)) {
+      memorySmsLogs = JSON.parse(fs.readFileSync(BUNDLED_SMS_LOGS_FILE, "utf8"));
+      safeWriteJson(SMS_LOGS_FILE, memorySmsLogs);
+      return memorySmsLogs!;
+    }
+  } catch {}
+  memorySmsLogs = getInitialSmsLogs();
+  safeWriteJson(SMS_LOGS_FILE, memorySmsLogs);
+  return memorySmsLogs;
 }
 
 export function logSms(log: Omit<SmsLog, "id" | "timestamp">): SmsLog {
-  ensureDataDir();
   const logs = getSmsLogs();
   const newLog: SmsLog = {
     ...log,
@@ -450,7 +490,8 @@ export function logSms(log: Omit<SmsLog, "id" | "timestamp">): SmsLog {
     timestamp: new Date().toISOString().replace("T", " ").substring(0, 19),
   };
   logs.unshift(newLog);
-  fs.writeFileSync(SMS_LOGS_FILE, JSON.stringify(logs, null, 2), "utf8");
+  memorySmsLogs = logs;
+  safeWriteJson(SMS_LOGS_FILE, logs);
   return newLog;
 }
 
@@ -459,25 +500,30 @@ export function logSms(log: Omit<SmsLog, "id" | "timestamp">): SmsLog {
 ───────────────────────────────────────────────────────────────────────────── */
 
 export function getSettings(): AdminSettings {
-  ensureDataDir();
-  if (!fs.existsSync(SETTINGS_FILE)) {
-    fs.writeFileSync(SETTINGS_FILE, JSON.stringify(defaultSettings, null, 2), "utf8");
-    return defaultSettings;
-  }
+  if (memorySettings) return memorySettings;
   try {
-    const raw = fs.readFileSync(SETTINGS_FILE, "utf8");
-    return { ...defaultSettings, ...JSON.parse(raw) };
-  } catch (err) {
-    console.error("Error reading settings:", err);
-    return defaultSettings;
-  }
+    if (fs.existsSync(SETTINGS_FILE)) {
+      memorySettings = { ...defaultSettings, ...JSON.parse(fs.readFileSync(SETTINGS_FILE, "utf8")) };
+      return memorySettings!;
+    }
+  } catch {}
+  try {
+    if (fs.existsSync(BUNDLED_SETTINGS_FILE)) {
+      memorySettings = { ...defaultSettings, ...JSON.parse(fs.readFileSync(BUNDLED_SETTINGS_FILE, "utf8")) };
+      safeWriteJson(SETTINGS_FILE, memorySettings);
+      return memorySettings!;
+    }
+  } catch {}
+  memorySettings = defaultSettings;
+  safeWriteJson(SETTINGS_FILE, memorySettings);
+  return memorySettings;
 }
 
 export function updateSettings(settings: Partial<AdminSettings>): AdminSettings {
-  ensureDataDir();
   const current = getSettings();
   const updated = { ...current, ...settings };
-  fs.writeFileSync(SETTINGS_FILE, JSON.stringify(updated, null, 2), "utf8");
+  memorySettings = updated;
+  safeWriteJson(SETTINGS_FILE, updated);
   return updated;
 }
 
