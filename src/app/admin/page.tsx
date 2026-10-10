@@ -626,50 +626,60 @@ export default function AdminPage() {
                       </button>
                     </div>
 
-                    <div className="divide-y divide-slate-100">
-                      {bookings.slice(0, 5).map((b) => (
-                        <div key={b.id} className="py-3.5 flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-3">
-                            <img
-                              src={b.costumeImage}
-                              alt={b.costumeName}
-                              className="w-12 h-14 object-cover object-top rounded-xl border border-slate-200"
-                            />
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <span className="font-bold text-slate-900 text-xs sm:text-sm">{b.costumeName}</span>
-                                <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-mono">
-                                  {b.id}
+                    {bookings.length > 0 ? (
+                      <div className="divide-y divide-slate-100">
+                        {bookings.slice(0, 5).map((b) => (
+                          <div key={b.id} className="py-3.5 flex items-center justify-between gap-4">
+                            <div className="flex items-center gap-3">
+                              <img
+                                src={b.costumeImage}
+                                alt={b.costumeName}
+                                className="w-12 h-14 object-cover object-top rounded-xl border border-slate-200"
+                              />
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span className="font-bold text-slate-900 text-xs sm:text-sm">{b.costumeName}</span>
+                                  <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-mono">
+                                    {b.id}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-slate-500 mt-0.5">
+                                  {b.customerName} ({b.customerPhone}) • {b.days} day{b.days > 1 ? "s" : ""} rental
+                                </p>
+                                <span className="text-[11px] text-slate-400">
+                                  {b.startDate} to {b.endDate}
                                 </span>
                               </div>
-                              <p className="text-xs text-slate-500 mt-0.5">
-                                {b.customerName} ({b.customerPhone}) • {b.days} day{b.days > 1 ? "s" : ""} rental
-                              </p>
-                              <span className="text-[11px] text-slate-400">
-                                {b.startDate} to {b.endDate}
+                            </div>
+
+                            <div className="text-right">
+                              <span className="font-black text-slate-900 text-sm block">₹{b.totalAmount}</span>
+                              <span
+                                className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider inline-block mt-1 ${
+                                  b.status === "confirmed"
+                                    ? "bg-blue-100 text-blue-800"
+                                    : b.status === "picked-up"
+                                    ? "bg-amber-100 text-amber-800"
+                                    : b.status === "returned"
+                                    ? "bg-emerald-100 text-emerald-800"
+                                    : "bg-red-100 text-red-800"
+                                }`}
+                              >
+                                {b.status}
                               </span>
                             </div>
                           </div>
-
-                          <div className="text-right">
-                            <span className="font-black text-slate-900 text-sm block">₹{b.totalAmount}</span>
-                            <span
-                              className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider inline-block mt-1 ${
-                                b.status === "confirmed"
-                                  ? "bg-blue-100 text-blue-800"
-                                  : b.status === "picked-up"
-                                  ? "bg-amber-100 text-amber-800"
-                                  : b.status === "returned"
-                                  ? "bg-emerald-100 text-emerald-800"
-                                  : "bg-red-100 text-red-800"
-                              }`}
-                            >
-                              {b.status}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="py-12 text-center text-slate-400">
+                        <Package className="w-10 h-10 mx-auto text-slate-300 mb-2" />
+                        <p className="text-sm font-bold text-slate-700">No Orders Yet</p>
+                        <p className="text-xs text-slate-400 mt-1">
+                          Fresh store setup. New customer bookings will appear here in real-time.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1242,37 +1252,43 @@ export default function AdminPage() {
                     <span className="text-xs font-normal text-slate-400">{smsLogs.length} total messages dispatched</span>
                   </h4>
 
-                  <div className="divide-y divide-slate-100">
-                    {smsLogs.slice(0, 8).map((log) => (
-                      <div key={log.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-slate-900">{log.customerName}</span>
-                            <span className="text-[11px] font-mono text-slate-500">({log.phone})</span>
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
-                              log.type === "return-reminder"
-                                ? "bg-amber-100 text-amber-800"
-                                : log.type === "overdue-alert"
-                                ? "bg-red-100 text-red-800"
-                                : "bg-blue-100 text-blue-800"
-                            }`}>
-                              {log.type}
-                            </span>
+                  {smsLogs.length > 0 ? (
+                    <div className="divide-y divide-slate-100">
+                      {smsLogs.slice(0, 8).map((log) => (
+                        <div key={log.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-bold text-slate-900">{log.customerName}</span>
+                              <span className="text-[11px] font-mono text-slate-500">({log.phone})</span>
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
+                                log.type === "return-reminder"
+                                  ? "bg-amber-100 text-amber-800"
+                                  : log.type === "overdue-alert"
+                                  ? "bg-red-100 text-red-800"
+                                  : "bg-blue-100 text-blue-800"
+                              }`}>
+                                {log.type}
+                              </span>
+                            </div>
+                            <p className="text-xs text-slate-600 bg-slate-50 p-2 rounded-xl font-mono border border-slate-100">
+                              {log.message}
+                            </p>
                           </div>
-                          <p className="text-xs text-slate-600 bg-slate-50 p-2 rounded-xl font-mono border border-slate-100">
-                            {log.message}
-                          </p>
-                        </div>
 
-                        <div className="text-left sm:text-right shrink-0">
-                          <span className="text-[10px] text-emerald-600 font-bold block uppercase">
-                            Delivered via {log.gateway}
-                          </span>
-                          <span className="text-[10px] text-slate-400 block">{log.timestamp}</span>
+                          <div className="text-left sm:text-right shrink-0">
+                            <span className="text-[10px] text-emerald-600 font-bold block uppercase">
+                              Delivered via {log.gateway}
+                            </span>
+                            <span className="text-[10px] text-slate-400 block">{log.timestamp}</span>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="py-8 text-center text-slate-400 text-xs">
+                      No SMS messages dispatched yet.
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -1290,44 +1306,54 @@ export default function AdminPage() {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {customers.map((c) => (
-                    <div key={c.phone} className="bg-white rounded-3xl p-5 border border-slate-200 shadow-xs space-y-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-800 font-black flex items-center justify-center text-sm">
-                          {c.name.charAt(0)}
+                {customers.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {customers.map((c) => (
+                      <div key={c.phone} className="bg-white rounded-3xl p-5 border border-slate-200 shadow-xs space-y-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-800 font-black flex items-center justify-center text-sm">
+                            {c.name.charAt(0)}
+                          </div>
+                          <div>
+                            <strong className="text-slate-900 font-bold text-sm block">{c.name}</strong>
+                            <span className="text-xs font-mono text-slate-500">📞 {c.phone}</span>
+                          </div>
                         </div>
-                        <div>
-                          <strong className="text-slate-900 font-bold text-sm block">{c.name}</strong>
-                          <span className="text-xs font-mono text-slate-500">📞 {c.phone}</span>
-                        </div>
-                      </div>
 
-                      <div className="bg-slate-50 rounded-2xl p-3 grid grid-cols-2 gap-2 text-center text-xs">
-                        <div>
-                          <span className="text-[10px] text-slate-400 font-bold uppercase block">Bookings</span>
-                          <strong className="text-slate-900 font-black">{c.bookingsCount} orders</strong>
+                        <div className="bg-slate-50 rounded-2xl p-3 grid grid-cols-2 gap-2 text-center text-xs">
+                          <div>
+                            <span className="text-[10px] text-slate-400 font-bold uppercase block">Bookings</span>
+                            <strong className="text-slate-900 font-black">{c.bookingsCount} orders</strong>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-slate-400 font-bold uppercase block">Total Spent</span>
+                            <strong className="text-emerald-700 font-black">₹{c.totalSpent}</strong>
+                          </div>
                         </div>
-                        <div>
-                          <span className="text-[10px] text-slate-400 font-bold uppercase block">Total Spent</span>
-                          <strong className="text-emerald-700 font-black">₹{c.totalSpent}</strong>
-                        </div>
-                      </div>
 
-                      <div className="text-[11px] text-slate-400 flex items-center justify-between pt-2 border-t border-slate-100">
-                        <span>Last rental: {c.lastRental}</span>
-                        <a
-                          href={`https://wa.me/91${c.phone}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-emerald-700 font-bold hover:underline"
-                        >
-                          WhatsApp Chat →
-                        </a>
+                        <div className="text-[11px] text-slate-400 flex items-center justify-between pt-2 border-t border-slate-100">
+                          <span>Last rental: {c.lastRental}</span>
+                          <a
+                            href={`https://wa.me/91${c.phone}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-emerald-700 font-bold hover:underline"
+                          >
+                            WhatsApp Chat →
+                          </a>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-white rounded-3xl p-12 text-center border border-slate-200">
+                    <Users className="w-10 h-10 mx-auto text-slate-300 mb-2" />
+                    <p className="text-sm font-bold text-slate-700">No Customer Records Yet</p>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Customers who reserve costumes will automatically appear in this directory with contact & booking history.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
