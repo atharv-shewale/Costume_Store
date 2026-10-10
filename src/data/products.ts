@@ -21,7 +21,6 @@ export interface Product {
 const IMG = (filename: string) => encodeURI(`/images/${filename}`);
 
 export const products: Product[] = [
-// ─── GARBA & NAVRATRI ─────────────────────────────────────────────────────
   {
     id: "g-001",
     name: "Vibrant Patchwork Chaniya Choli",
@@ -507,8 +506,6 @@ export const products: Product[] = [
     tags: ["garba","navratri","chaniya","women","black","mirror work","spinning"],
     featured: true,
   },
-
-  // ─── MYTHOLOGICAL / RELIGIOUS (ADULTS) ────────────────────────────────────
   {
     id: "m-001",
     name: "Maa Kali Costume (Adult)",
@@ -544,7 +541,7 @@ export const products: Product[] = [
     id: "m-004",
     name: "Shri Krishna / Vishnu Costume (Adult)",
     category: "mythological",
-    price: "Price on Request",
+    price: 400,
     description:
       "Dark-skin Krishna/Vishnu costume with crown, multi-strand pearl necklace, yellow & blue royal attire.",
     image: IMG("WhatsApp Image 2026-10-06 at 8.13.04 AM (2).jpeg"),
@@ -561,13 +558,11 @@ export const products: Product[] = [
     tags: ["ravan","mythological","dussehra","ramayan","black","warrior"],
     featured: true,
   },
-
-  // ─── KIDS MYTHOLOGICAL, HISTORIC & FREEDOM FIGHTERS ───────────────────────
   {
     id: "k-001",
     name: "Ram-Sita-Hanuman-Lakshman Set (Kids)",
     category: "kids-mythological",
-    price: 300,
+    price: 800,
     description:
       "Complete Ramayan characters set – Ram, Sita, Lakshman & Hanuman costumes for children. Ideal for school events and Dussehra.",
     image: IMG("WhatsApp Image 2026-10-06 at 8.13.03 AM (2).jpeg"),
@@ -598,7 +593,7 @@ export const products: Product[] = [
     id: "k-004",
     name: "Sadhu / Sant Costume (Kids)",
     category: "kids-mythological",
-    price: 350,
+    price: 300,
     description:
       "White dhoti sadhu costume for children with rudraksha mala, ektar musical instrument prop.",
     image: IMG("WhatsApp Image 2026-10-06 at 8.13.07 AM (1).jpeg"),
@@ -608,7 +603,7 @@ export const products: Product[] = [
     id: "k-005",
     name: "Ravan Costume with 10-Head Crown (Kids)",
     category: "kids-mythological",
-    price: "Price on Request",
+    price: 400,
     description:
       "Dramatic Ravan costume for kids with 10-headed crown backdrop, black & gold royal attire and sword prop.",
     image: IMG("WhatsApp Image 2026-10-06 at 8.13.07 AM (2).jpeg"),
@@ -619,7 +614,7 @@ export const products: Product[] = [
     id: "k-006",
     name: "Maa Durga Costume (Kids)",
     category: "kids-mythological",
-    price: "Price on Request",
+    price: 400,
     description:
       "Beautiful Maa Durga costume for girls with golden crown, red silk saree, multi-arm frame and trident prop.",
     image: IMG("WhatsApp Image 2026-10-06 at 8.13.08 AM.jpeg"),
@@ -650,7 +645,7 @@ export const products: Product[] = [
     id: "k-009",
     name: "Ardhanarishvara Costume (Kids)",
     category: "kids-mythological",
-    price: 500,
+    price: 400,
     description:
       "Unique half-Shiva half-Parvati Ardhanarishvara costume for children. Blue & red split with trident.",
     image: IMG("WhatsApp Image 2026-10-06 at 8.13.09 AM (2).jpeg"),
@@ -661,7 +656,7 @@ export const products: Product[] = [
     id: "k-010",
     name: "Ardhanarishvara (With Price) – Kids",
     category: "kids-mythological",
-    price: 500,
+    price: 400,
     description:
       "Ardhanarishvara costume – half Shiva, half Parvati. Blue body paint half, red saree half. With trident and damru.",
     image: IMG("WhatsApp Image 2026-10-06 at 8.20.12 AM.jpeg"),
@@ -671,7 +666,7 @@ export const products: Product[] = [
     id: "k-011",
     name: "Sadhu / Rishi Baba Costume (Kids)",
     category: "kids-mythological",
-    price: 350,
+    price: 300,
     description:
       "Sadhu costume with white jata wig, orange dhoti and prayer bowl (kamandal). Ideal for school tableaux.",
     image: IMG("WhatsApp Image 2026-10-06 at 8.13.04 AM (1).jpeg"),
@@ -681,7 +676,7 @@ export const products: Product[] = [
     id: "k-012",
     name: "Sadhu / Rishi Baba (With Price) – Kids",
     category: "kids-mythological",
-    price: 350,
+    price: 300,
     description:
       "Orange sadhu/rishi baba costume for children with white beard wig and kamandal prop.",
     image: IMG("WhatsApp Image 2026-10-06 at 8.21.27 AM.jpeg"),
@@ -691,7 +686,7 @@ export const products: Product[] = [
     id: "k-013",
     name: "Tribal Warrior / Adivasi Costume (Kids)",
     category: "kids-mythological",
-    price: 400,
+    price: 300,
     description:
       "Unique tribal/adivasi warrior costume for boys with Mahabali-style blue-yellow dhoti and pearl accessories.",
     image: IMG("WhatsApp Image 2026-10-06 at 8.13.08 AM (3).jpeg"),
@@ -701,7 +696,7 @@ export const products: Product[] = [
     id: "k-014",
     name: "Vaman / Mahabali King Costume (Kids)",
     category: "kids-mythological",
-    price: 400,
+    price: 350,
     description:
       "Traditional Maharaja/Vaman/Bali raja costume for boys with pink turban, yellow & blue royal dhoti and shell garland.",
     image: IMG("WhatsApp Image 2026-10-06 at 8.13.07 AM.jpeg"),
@@ -711,7 +706,7 @@ export const products: Product[] = [
     id: "k-015",
     name: "Mahabali / King Warrior (Alt) – Kids",
     category: "kids-mythological",
-    price: 400,
+    price: 350,
     description:
       "Warrior king costume for children with black face paint, golden crown and blue-orange royal dhoti.",
     image: IMG("WhatsApp Image 2026-10-06 at 8.13.09 AM.jpeg"),
@@ -721,7 +716,7 @@ export const products: Product[] = [
     id: "k-016",
     name: "Narad Muni Costume (Kids)",
     category: "kids-mythological",
-    price: 400,
+    price: 300,
     description:
       "Black & gold Narad Muni costume for boys with veena/instrument accessories. School performance favourite.",
     image: IMG("WhatsApp Image 2026-10-06 at 8.13.09 AM (1).jpeg"),
@@ -731,7 +726,7 @@ export const products: Product[] = [
     id: "k-017",
     name: "Shri Krishna / Vishnu (Kids – Blue)",
     category: "kids-mythological",
-    price: "Price on Request",
+    price: 350,
     description:
       "Blue-skin Krishna/Vishnu costume for children with golden crown, pearl necklace and yellow dhoti.",
     image: IMG("WhatsApp Image 2026-10-06 at 8.13.04 AM (2).jpeg"),
@@ -752,7 +747,7 @@ export const products: Product[] = [
     id: "k-019",
     name: "Ramayan Vanvas Trio Set – Ram, Sita, Lakshman (Kids)",
     category: "kids-mythological",
-    price: 300,
+    price: 750,
     description:
       "Authentic Ramayan Vanvas attire in saffron cotton dhotis, rudraksha malas, and bow-arrow props for kids Ram Leela performances.",
     image: IMG("WhatsApp Image 2026-10-06 at 8.13.03 AM.jpeg"),
@@ -763,7 +758,7 @@ export const products: Product[] = [
     id: "k-020",
     name: "Ramayan Trio in Saffron Dhotis (Kids)",
     category: "kids-mythological",
-    price: 300,
+    price: 750,
     description:
       "Orange saffron dhoti-kurta costumes for Ram, Lakshman and Sita with floral garland, bow, and rudraksha beads.",
     image: IMG("WhatsApp Image 2026-10-06 at 8.16.19 AM.jpeg"),
@@ -773,7 +768,7 @@ export const products: Product[] = [
     id: "k-021",
     name: "King Mahabali / Vaman Royal Costume (Kids)",
     category: "kids-mythological",
-    price: 400,
+    price: 350,
     description:
       "Regal Mahabali / Raja costume for boys with royal blue-yellow dhoti, shell belt, pearl necklace, and authentic Maharashtrian pink turban.",
     image: IMG("WhatsApp Image 2026-10-06 at 8.17.54 AM.jpeg"),
@@ -783,7 +778,7 @@ export const products: Product[] = [
     id: "k-022",
     name: "Bal Krishna Yellow & Red Toddler Set",
     category: "kids-mythological",
-    price: 350,
+    price: 300,
     description:
       "Adorable Bal Krishna costume for toddlers with yellow angrakha kurta, red dhoti, morpankh mukut, bansuri flute, and decorated makhan pot.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.40.31 PM.jpeg"),
@@ -805,7 +800,7 @@ export const products: Product[] = [
     id: "k-024",
     name: "Bal Krishna Royal Red & Gold Costume (Kids)",
     category: "kids-mythological",
-    price: 350,
+    price: 300,
     description:
       "Festive Bal Krishna outfit with embroidered red angrakha, golden dhoti, multi-strand pearl garlands, ornate mukut, and flute.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.40.33 PM.jpeg"),
@@ -815,7 +810,7 @@ export const products: Product[] = [
     id: "k-025",
     name: "Chhatrapati Shivaji Maharaj Costume in Royal Red (Kids)",
     category: "kids-mythological",
-    price: 450,
+    price: 300,
     description:
       "Majestic Shivaji Maharaj warrior costume for boys with red brocade angrakha, gold dhoti, traditional red pheta turban, pearls and sword.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.40.34 PM (1).jpeg"),
@@ -826,7 +821,7 @@ export const products: Product[] = [
     id: "k-026",
     name: "Royal Peshwa / Maratha Prince Costume (Kids)",
     category: "kids-mythological",
-    price: 450,
+    price: 300,
     description:
       "Elegant Peshwa prince costume with golden silk angrakha, royal blue sash, golden dhoti, velvet pheta turban, and sheathed sword.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.40.34 PM (2).jpeg"),
@@ -836,7 +831,7 @@ export const products: Product[] = [
     id: "k-027",
     name: "Maratha Warrior / Shivaji Maharaj in Green Brocade (Kids)",
     category: "kids-mythological",
-    price: 450,
+    price: 300,
     description:
       "Authentic Maratha warrior king attire featuring green & red embroidered angrakha, white dhoti, pearl necklace, red pheta, and talwar sword.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.40.34 PM (3).jpeg"),
@@ -846,7 +841,7 @@ export const products: Product[] = [
     id: "k-028",
     name: "Chhatrapati Shivaji Maharaj with Shield & Talwar (Kids)",
     category: "kids-mythological",
-    price: 500,
+    price: 300,
     description:
       "Full warrior look of Chhatrapati Shivaji Maharaj with brocade angrakha, beard & mustache prop, pheta, metallic dhal (shield) and talwar (sword).",
     image: IMG("WhatsApp Image 2026-10-09 at 9.40.34 PM.jpeg"),
@@ -857,7 +852,7 @@ export const products: Product[] = [
     id: "k-029",
     name: "Bal Krishna Vrindavan Matki Set (Kids)",
     category: "kids-mythological",
-    price: 350,
+    price: 300,
     description:
       "Cute Bal Krishna costume with royal blue dhoti, peacock feather crown, flute, and colorful decorated makhan handi prop.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.40.35 PM (1).jpeg"),
@@ -867,7 +862,7 @@ export const products: Product[] = [
     id: "k-030",
     name: "Lord Krishna / Vishnu Royal Costume with Crown (Kids)",
     category: "kids-mythological",
-    price: 400,
+    price: 350,
     description:
       "Divine Krishna/Vishnu costume featuring grand golden crown (mukut), blue-gold angavastram, bright yellow dhoti, pearl malas, and flute.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.40.35 PM (2).jpeg"),
@@ -877,7 +872,7 @@ export const products: Product[] = [
     id: "k-031",
     name: "Royal Maratha King / Peshwa in Embroidered Sherwani (Kids)",
     category: "kids-mythological",
-    price: 500,
+    price: 300,
     description:
       "Regal Maratha king costume with embroidered brocade jacket, orange dhoti sash, designer pheta, pearl garlands, and royal posture.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.40.35 PM.jpeg"),
@@ -887,7 +882,7 @@ export const products: Product[] = [
     id: "k-032",
     name: "Bal Krishna Yellow & Royal Blue Dhoti Set (Kids)",
     category: "kids-mythological",
-    price: 350,
+    price: 300,
     description:
       "Vibrant yellow embroidered top with royal blue pleated dhoti, kamarbandh, morpankh mukut, and flute for Janmashtami celebrations.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.40.37 PM (1).jpeg"),
@@ -907,7 +902,7 @@ export const products: Product[] = [
     id: "k-034",
     name: "Bal Krishna in Orange & Red Dhoti Set (Kids)",
     category: "kids-mythological",
-    price: 350,
+    price: 300,
     description:
       "Traditional orange and blue dhoti-kurta set with peacock feather crown, pearl necklace, armbands, and decorated bansuri.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.40.37 PM.jpeg"),
@@ -917,7 +912,7 @@ export const products: Product[] = [
     id: "k-035",
     name: "Bal Krishna with Kutchi Embroidered Koti (Kids)",
     category: "kids-mythological",
-    price: 400,
+    price: 350,
     description:
       "Unique Kutchi mirrorwork embroidered jacket with rich red pleated dhoti, ornate pagdi with peacock feather, and flute.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.40.39 PM.jpeg"),
@@ -927,7 +922,7 @@ export const products: Product[] = [
     id: "k-036",
     name: "Goddess Sita / Lakshmi in Royal Blue Silk (Kids)",
     category: "kids-mythological",
-    price: 400,
+    price: 350,
     description:
       "Goddess costume for girls featuring royal blue silk saree with gold border, intricate golden crown, nose ring, pearl necklaces, and bow-arrow prop.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.40.40 PM (1).jpeg"),
@@ -938,7 +933,7 @@ export const products: Product[] = [
     id: "k-037",
     name: "Bal Krishna Blue & Pink Dhoti Set with Makhan Pot (Kids)",
     category: "kids-mythological",
-    price: 350,
+    price: 300,
     description:
       "Festive blue and pink dhoti set for little Krishna with peacock feather crown, pearl garlands, and traditional butter pot prop.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.40.40 PM.jpeg"),
@@ -948,7 +943,7 @@ export const products: Product[] = [
     id: "k-038",
     name: "Bharat Mata / Goddess Lakshmi Costume (Girls)",
     category: "kids-mythological",
-    price: 400,
+    price: 350,
     description:
       "Divine Bharat Mata / Lakshmi costume in red & gold brocade lehenga-saree with ornate golden crown, red veil, and blessing pose.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.40.41 PM (1).jpeg"),
@@ -958,7 +953,7 @@ export const products: Product[] = [
     id: "k-039",
     name: "Bal Krishna Embroidered White & Red Costume (Kids)",
     category: "kids-mythological",
-    price: 350,
+    price: 300,
     description:
       "Traditional white embroidered choli with festive red dhoti, morpankh crown, pearl malas, and bansuri flute.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.40.41 PM.jpeg"),
@@ -968,7 +963,7 @@ export const products: Product[] = [
     id: "k-040",
     name: "Sant Tukaram / Varkari Saint Costume with Chipli (Kids)",
     category: "kids-mythological",
-    price: 350,
+    price: 300,
     description:
       "Traditional Maharashtra saint costume with white angrakha, dhoti, saffron sash, white pagdi with tilak, rudraksha necklace, and musical chipli prop.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.40.42 PM (2).jpeg"),
@@ -979,7 +974,7 @@ export const products: Product[] = [
     id: "k-041",
     name: "Lord Krishna in Sky Blue Silk Costume (Kids)",
     category: "kids-mythological",
-    price: 400,
+    price: 350,
     description:
       "Stunning sky-blue silk dhoti-kurta with golden borders, peacock feather pagdi, pearl malas, and wooden flute.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.40.42 PM.jpeg"),
@@ -989,7 +984,7 @@ export const products: Product[] = [
     id: "k-042",
     name: "Swami Vivekananda / Young Sanyasi Costume (Kids)",
     category: "kids-mythological",
-    price: 350,
+    price: 300,
     description:
       "Authentic Swami Vivekananda / sadhu costume in bright saffron dhoti and kurta, rudraksha malas, and saffron turban.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.40.43 PM (1).jpeg"),
@@ -999,7 +994,7 @@ export const products: Product[] = [
     id: "k-043",
     name: "Royal Chhatrapati Shivaji Maharaj with Dhal & Talwar (Kids)",
     category: "kids-mythological",
-    price: 500,
+    price: 300,
     description:
       "Complete royal Maratha outfit with deep red & gold brocade angrakha, traditional pheta, pearl haar, metallic shield, and sword.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.40.43 PM (2).jpeg"),
@@ -1010,7 +1005,7 @@ export const products: Product[] = [
     id: "k-044",
     name: "Bal Krishna Yellow Embroidered Angrakha Set (Kids)",
     category: "kids-mythological",
-    price: 350,
+    price: 300,
     description:
       "Bright yellow embroidered angrakha top with red dhoti, jewel-encrusted mukut, pearl malas, and flute.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.40.43 PM (3).jpeg"),
@@ -1020,7 +1015,7 @@ export const products: Product[] = [
     id: "k-045",
     name: "Lord Venkateshwara Balaji & Padmavati Duo Set (Kids)",
     category: "kids-mythological",
-    price: 500,
+    price: 600,
     description:
       "Majestic Tirupati Balaji and Goddess Padmavati South Indian deity costumes featuring tall golden kiritams, silk dhotis, and ornate temple jewels. Pair available.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.40.43 PM.jpeg"),
@@ -1031,7 +1026,7 @@ export const products: Product[] = [
     id: "k-046",
     name: "Bal Krishna in Red Angrakha & Yellow Dhoti (Kids)",
     category: "kids-mythological",
-    price: 350,
+    price: 300,
     description:
       "Playful Krishna costume with red printed angrakha, bright yellow dhoti, colorful turban with peacock feather, and flute.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.40.44 PM (1).jpeg"),
@@ -1052,19 +1047,17 @@ export const products: Product[] = [
     id: "k-048",
     name: "Bal Krishna with Golden Flute & Mukut (Kids)",
     category: "kids-mythological",
-    price: 350,
+    price: 300,
     description:
       "Classic yellow top and red dhoti Krishna costume with matching red turban, morpankh, and bansuri flute.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.40.44 PM.jpeg"),
     tags: ["krishna","bal krishna","janmashtami","kids"],
   },
-
-  // ─── TRADITIONAL INDIAN & REGIONAL FOLK ───────────────────────────────────
   {
     id: "t-001",
-    name: "Rajasthani Ghoomar Flared Skirt Costume (Girls)",
+    name: "Rajasthani Ghoomar Flared Skirt Costume (Girls - with Jewellery)",
     category: "traditional-indian",
-    price: 500,
+    price: 350,
     description:
       "Authentic Rajasthani folk dance outfit with wide flared yellow ghagra, contrasting pink koti, silver waist ornament and traditional jewellery.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.23.20 PM.jpeg"),
@@ -1073,9 +1066,9 @@ export const products: Product[] = [
   },
   {
     id: "t-002",
-    name: "Marwadi Ghagra Choli with Borla (Girls)",
+    name: "Marwadi Ghagra Choli with Borla (Girls - with Jewellery)",
     category: "traditional-indian",
-    price: 450,
+    price: 350,
     description:
       "Traditional yellow and red Marwadi ghagra choli with ethnic border work, matching odhani, borla maang tikka and traditional jewellery.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.46.33 PM.jpeg"),
@@ -1085,7 +1078,7 @@ export const products: Product[] = [
     id: "t-003",
     name: "Gujarati / Rajasthani Kediyu Dhoti Set (Boys)",
     category: "traditional-indian",
-    price: 400,
+    price: 250,
     description:
       "Vibrant red bandhani print kediyu top with yellow dhoti and matching bandhani pagdi/turban. Ideal for cultural and folk events.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.46.38 PM.jpeg"),
@@ -1093,19 +1086,19 @@ export const products: Product[] = [
   },
   {
     id: "t-004",
-    name: "Kashmiri Traditional Folk Dress (Girls)",
+    name: "Kashmiri Traditional Folk Dress (Girls - with Jewellery)",
     category: "traditional-indian",
-    price: 450,
+    price: 350,
     description:
-      "Lovely blue flared skirt with pink kurta and embroidered Kashmiri koti jacket, complete with matching headscarf and silver coin necklace.",
+      "Lovely blue flared skirt with pink kurta and embroidered Kashmiri koti jacket, complete with matching headscarf and silver coin necklace. Includes complete matching jewellery set.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.46.39 PM (2).jpeg"),
     tags: ["kashmiri","folk","traditional","girls","blue","school event"],
   },
   {
     id: "t-005",
-    name: "Royal Red Velvet Kashmiri Pheran (Girls)",
+    name: "Royal Red Velvet Kashmiri Pheran (Girls - with Jewellery)",
     category: "traditional-indian",
-    price: 500,
+    price: 350,
     description:
       "Rich red velvet Kashmiri pheran with traditional silver tilla embroidery, ornate taranga headwear, and authentic heavy silver jewellery.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.46.39 PM.jpeg"),
@@ -1114,9 +1107,9 @@ export const products: Product[] = [
   },
   {
     id: "t-006",
-    name: "Kerala Kasavu Traditional Saree (Girls)",
+    name: "Kerala Kasavu Traditional Saree (Girls - with Jewellery)",
     category: "traditional-indian",
-    price: 400,
+    price: 300,
     description:
       "Pristine white Kerala Kasavu saree with golden zari border paired with a contrasting festive blouse and temple jewellery.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.46.40 PM (1).jpeg"),
@@ -1124,20 +1117,20 @@ export const products: Product[] = [
   },
   {
     id: "t-007",
-    name: "Royal Blue Velvet Kashmiri Pheran with Flower Basket",
+    name: "Royal Blue Velvet Kashmiri Pheran with Flower Basket (with Jewellery)",
     category: "traditional-indian",
-    price: 500,
+    price: 350,
     description:
-      "Magnificent royal blue velvet Kashmiri pheran with elaborate silver embroidery, silver taranga cap, necklaces and wicker flower basket prop.",
+      "Magnificent royal blue velvet Kashmiri pheran with elaborate silver embroidery, silver taranga cap, necklaces and wicker flower basket prop. Includes complete matching jewellery set.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.46.40 PM.jpeg"),
     tags: ["kashmiri","pheran","velvet","blue","girls","traditional"],
     featured: true,
   },
   {
     id: "t-008",
-    name: "Assamese Bihu Dance Mekhela Sador (Girls)",
+    name: "Assamese Bihu Dance Mekhela Sador (Girls - with Jewellery)",
     category: "traditional-indian",
-    price: 450,
+    price: 350,
     description:
       "Authentic Assamese muga silk Mekhela Sador with red floral motifs, red blouse, flower bun and traditional Assamese gamkharu jewellery.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.46.41 PM (1).jpeg"),
@@ -1146,21 +1139,21 @@ export const products: Product[] = [
   },
   {
     id: "t-009",
-    name: "Rajasthani Bandhani Ghoomar Ghagra Set (Girls)",
+    name: "Rajasthani Bandhani Ghoomar Ghagra Set (Girls - with Jewellery)",
     category: "traditional-indian",
-    price: 450,
+    price: 350,
     description:
-      "Authentic yellow and red bandhani print ghagra choli with yellow odhani, traditional Rajasthani borla, aad necklace and chooda bangles.",
+      "Authentic yellow and red bandhani print ghagra choli with yellow odhani, traditional Rajasthani borla, aad necklace and chooda bangles. Includes complete matching jewellery set.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.46.41 PM (2).jpeg"),
     tags: ["rajasthani","bandhani","ghoomar","ghagra","girls","traditional"],
   },
   {
     id: "t-010",
-    name: "Kerala Kasavu Traditional Onam Attire (Girls)",
+    name: "Kerala Kasavu Traditional Onam Attire (Girls - with Jewellery)",
     category: "traditional-indian",
-    price: 400,
+    price: 300,
     description:
-      "Classic Kerala Onam Kasavu costume with gold kasavu border, red blouse and traditional jasmine flower hair accessory.",
+      "Classic Kerala Onam Kasavu costume with gold kasavu border, red blouse and traditional jasmine flower hair accessory. Includes complete matching jewellery set.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.46.41 PM.jpeg"),
     tags: ["kerala","kasavu","onam","traditional","girls"],
   },
@@ -1168,7 +1161,7 @@ export const products: Product[] = [
     id: "t-011",
     name: "Punjabi Bhangra Dance Costume (Boys)",
     category: "traditional-indian",
-    price: 450,
+    price: 250,
     description:
       "High-energy Punjabi Bhangra outfit with bright red & gold kurta, yellow pleated lungi/chadra, matching waistcoat and fan-shaped turla pagdi.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.46.42 PM (1).jpeg"),
@@ -1179,7 +1172,7 @@ export const products: Product[] = [
     id: "t-012",
     name: "Bengali / Assamese Traditional Kurta Dhoti (Boys)",
     category: "traditional-indian",
-    price: 400,
+    price: 200,
     description:
       "Cream tussar silk kurta paired with white golden-bordered dhoti and traditional red-white cotton gamosa/uttariya.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.46.42 PM (2).jpeg"),
@@ -1187,9 +1180,9 @@ export const products: Product[] = [
   },
   {
     id: "t-013",
-    name: "Bengali Lal Paar Saree (Girls)",
+    name: "Bengali Lal Paar Saree (Girls - with Jewellery)",
     category: "traditional-indian",
-    price: 400,
+    price: 300,
     description:
       "Classic Bengali white silk saree with iconic red border (Lal Paar), red blouse, shankha pola bangles and gold temple jewellery.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.46.42 PM.jpeg"),
@@ -1199,7 +1192,7 @@ export const products: Product[] = [
     id: "t-014",
     name: "South Indian Royal Red Kurta Dhoti Set (Boys)",
     category: "traditional-indian",
-    price: 400,
+    price: 200,
     description:
       "Rich red silk kurta paired with pristine white pancha dhoti featuring wide gold zari borders and matching angavastram shawl.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.46.43 PM (1).jpeg"),
@@ -1209,7 +1202,7 @@ export const products: Product[] = [
     id: "t-015",
     name: "South Indian Kasavu Mundu & Shirt Set (Boys)",
     category: "traditional-indian",
-    price: 400,
+    price: 200,
     description:
       "Traditional cream silk shirt with authentic Kerala kasavu mundu/dhoti and gold border angavastram. Classic festive attire.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.46.43 PM.jpeg"),
@@ -1219,7 +1212,7 @@ export const products: Product[] = [
     id: "t-016",
     name: "Indian Farmer / Kisan Costume with Props (Kids)",
     category: "traditional-indian",
-    price: 350,
+    price: 200,
     description:
       "Authentic Indian farmer fancy dress with red kurta, short printed lungi/dhoti, farmer headscarf, supda grain basket and spade prop.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.46.44 PM (1).jpeg"),
@@ -1230,7 +1223,7 @@ export const products: Product[] = [
     id: "t-017",
     name: "Rajasthani Royal Angrakha & Dhoti (Boys)",
     category: "traditional-indian",
-    price: 400,
+    price: 250,
     description:
       "Pink and yellow bandhani flared angrakha with white dhoti, colorful Rajasthani pagdi turban, pearl necklace and mustache prop.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.46.44 PM (2).jpeg"),
@@ -1240,7 +1233,7 @@ export const products: Product[] = [
     id: "t-018",
     name: "Himachali / Kullu Pahadi Boy Costume",
     category: "traditional-indian",
-    price: 400,
+    price: 250,
     description:
       "Royal blue kurta-pyjama with traditional patterned Himachal Kullu waistcoat and authentic embroidered Kullu topi cap.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.46.44 PM (3).jpeg"),
@@ -1251,7 +1244,7 @@ export const products: Product[] = [
     id: "t-019",
     name: "Odisha Sambalpuri Ikat Kurta Dhoti Set (Boys)",
     category: "traditional-indian",
-    price: 400,
+    price: 250,
     description:
       "Traditional Sambalpuri geometric ikat weave kurta with contrasting black & gold dhoti. Rich handloom-style cultural costume.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.46.44 PM.jpeg"),
@@ -1261,7 +1254,7 @@ export const products: Product[] = [
     id: "t-020",
     name: "Kashmiri Traditional Couple Pair Costumes",
     category: "traditional-indian",
-    price: 750,
+    price: 550,
     description:
       "Matching boy and girl Kashmiri pheran set in royal blue and magenta with intricate neck embroidery and authentic Kashmiri headgear. Pair rental.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.46.45 PM (1).jpeg"),
@@ -1272,7 +1265,7 @@ export const products: Product[] = [
     id: "t-021",
     name: "Naga / North-East Tribal Folk Costume (Kids)",
     category: "traditional-indian",
-    price: 350,
+    price: 250,
     description:
       "Authentic red and black striped North-East tribal tunic with beaded shell necklace and traditional feather-and-bead head ornament.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.46.45 PM.jpeg"),
@@ -1282,7 +1275,7 @@ export const products: Product[] = [
     id: "t-022",
     name: "North-East Naga Warrior Costume with Spear (Kids)",
     category: "traditional-indian",
-    price: 400,
+    price: 250,
     description:
       "Tribal warrior costume featuring tribal sash, feather headgear, beaded jewellery, face marks, and spear prop with 'Unity in Diversity' banner.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.46.46 PM.jpeg"),
@@ -1291,9 +1284,9 @@ export const products: Product[] = [
   },
   {
     id: "t-023",
-    name: "Rajasthani Kalbelia / Folk Dance Flared Costume (Girls)",
+    name: "Rajasthani Kalbelia / Folk Dance Flared Costume (Girls - with Jewellery)",
     category: "traditional-indian",
-    price: 500,
+    price: 350,
     description:
       "Stunning green and red flared folk dance skirt with silver gota ribbons, embroidered blouse, silver jewellery and head odhani.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.47.13 PM.jpeg"),
@@ -1301,9 +1294,9 @@ export const products: Product[] = [
   },
   {
     id: "t-024",
-    name: "Maharashtrian Nauvari Saree in Emerald Green (Girls)",
+    name: "Maharashtrian Nauvari Saree in Emerald Green (Girls - with Jewellery)",
     category: "traditional-indian",
-    price: 450,
+    price: 350,
     description:
       "Traditional green Kashta / Nauvari saree with bright red border, paired with gold jewellery, Maharashtrian nath (nose ring), and green glass bangles.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.47.34 PM.jpeg"),
@@ -1312,9 +1305,9 @@ export const products: Product[] = [
   },
   {
     id: "t-025",
-    name: "Odisha Sambalpuri Ikat Dance Saree (Girls)",
+    name: "Odisha Sambalpuri Ikat Dance Saree (Girls - with Jewellery)",
     category: "traditional-indian",
-    price: 450,
+    price: 350,
     description:
       "Vibrant red and black Sambalpuri ikat patterned saree with ornate silver kamarbandh waistbelt, silver armlets, and traditional dance jewellery.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.48.02 PM.jpeg"),
@@ -1322,26 +1315,24 @@ export const products: Product[] = [
   },
   {
     id: "t-026",
-    name: "Kerala Kasavu Saree with Gold Border (Girls)",
+    name: "Kerala Kasavu Saree with Gold Border (Girls - with Jewellery)",
     category: "traditional-indian",
-    price: 400,
+    price: 300,
     description:
-      "Traditional Kerala Kasavu pleated saree with shimmering gold zari border, contrasting pink blouse, and gold temple belt.",
+      "Traditional Kerala Kasavu pleated saree with shimmering gold zari border, contrasting pink blouse, and gold temple belt. Includes complete matching jewellery set.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.49.01 PM.jpeg"),
     tags: ["kerala","kasavu","onam","girls","traditional","white"],
   },
   {
     id: "t-027",
-    name: "Maharashtrian Nauvari Saree in Royal Peacock Blue (Girls)",
+    name: "Maharashtrian Nauvari Saree in Royal Peacock Blue (Girls - with Jewellery)",
     category: "traditional-indian",
-    price: 450,
+    price: 350,
     description:
-      "Stunning peacock blue silk Nauvari saree with silver zari border, pink blouse, gold kamarpatta waist belt, and traditional ornaments.",
+      "Stunning peacock blue silk Nauvari saree with silver zari border, pink blouse, gold kamarpatta waist belt, and traditional ornaments. Includes complete matching jewellery set.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.49.37 PM.jpeg"),
     tags: ["maharashtrian","nauvari","saree","girls","blue","traditional"],
   },
-
-  // ─── HALLOWEEN & SPOOKY FANCY DRESS ──────────────────────────────────────
   {
     id: "h-001",
     name: "Cute Witch Orange & Black Dress with Pointed Hat (Girls)",
@@ -1563,13 +1554,11 @@ export const products: Product[] = [
     tags: ["the nun","valak","horror","halloween","cross","kids"],
     featured: true,
   },
-
-  // ─── FESTIVALS & SPECIAL THEMES ──────────────────────────────────────────
   {
     id: "f-001",
     name: "Goa Tourist / Beach Vacation Fancy Dress (Boys)",
     category: "festival",
-    price: 300,
+    price: 200,
     description:
       "Fun vibrant floral Hawaiian-style beach shirt with red shorts. Great for summer theme and travel/vacation school fancy dress.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.46.45 PM (2).jpeg"),
@@ -1589,7 +1578,7 @@ export const products: Product[] = [
     id: "f-003",
     name: "Red Apple / Fruit Fancy Dress Costume (Kids)",
     category: "festival",
-    price: 300,
+    price: 200,
     description:
       "Adorable plush red apple jumpsuit costume with green leaf collar, matching green hat, and green sleeves. Perfect for kindergarten fancy dress.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.40.42 PM (1).jpeg"),
@@ -1607,9 +1596,6 @@ export const products: Product[] = [
     tags: ["hawaiian","hula dance","tropical","grass skirt","fancy dress","kids","girls"],
     featured: true,
   },
-
-
-  // ─── HALLOWEEN ADDITIONS & UPDATES (PRICE: ₹200 - ₹400 RENT) ─────────────
   {
     id: "h-022",
     name: "Classic Spooky Black Ghoul Robe / Tunic",
@@ -1641,13 +1627,11 @@ export const products: Product[] = [
     image: IMG("WhatsApp Image 2026-10-09 at 9.46.37 PM (1).jpeg"),
     tags: ["witch","halloween","girls","hat","skull","pumpkin"],
   },
-
-  // ─── TRADITIONAL INDIAN FOLK ADDITIONS ──────────────────────────────────
   {
     id: "t-028",
     name: "North-East Nagaland Folk Costume with Unity Banner",
     category: "traditional-indian",
-    price: 400,
+    price: 250,
     description:
       "Authentic Naga tribal costume with geometric red-black-yellow wrap, beaded necklace, feathered warrior headdress, and 'Unity in Diversity' banner prop.",
     image: IMG("WhatsApp Image 2026-10-09 at 9.49.18 PM.jpeg"),
@@ -1656,11 +1640,11 @@ export const products: Product[] = [
   },
   {
     id: "t-029",
-    name: "Royal Kashmiri Pheran & Taranga Headdress (Girls)",
+    name: "Royal Kashmiri Pheran & Taranga Headdress (Girls - with Jewellery)",
     category: "traditional-indian",
-    price: 450,
+    price: 350,
     description:
-      "Richly embroidered Kashmiri velvet pheran with traditional silver coin jewelry, headscarf taranga, and authentic regional ornaments.",
+      "Richly embroidered Kashmiri velvet pheran with traditional silver coin jewelry, headscarf taranga, and authentic regional ornaments. Includes complete matching jewellery set.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.47.21 PM (1).jpeg"),
     tags: ["kashmiri","pheran","kashmir","traditional","girls","velvet"],
     featured: true,
@@ -1669,15 +1653,24 @@ export const products: Product[] = [
     id: "t-030",
     name: "Maharashtrian Koli Fisherboy Folk Costume",
     category: "traditional-indian",
-    price: 350,
+    price: 200,
     description:
       "Authentic Koli dance outfit featuring bright orange-yellow striped kurta, traditional checked lungi/dhoti, red cap, and golden boat oar prop.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.47.25 PM.jpeg"),
     tags: ["koli","fisherman","maharashtrian","folk dance","koli dance","boys"],
     featured: true,
   },
-
-  // ─── KIDS HISTORICAL LEADERS & MYTHOLOGICAL ADDITIONS ────────────────────
+  {
+    id: "t-031",
+    name: "Classical Bharatnatyam Dance Costume (with Jewellery)",
+    category: "traditional-indian",
+    price: 450,
+    description:
+      "Authentic pleated silk Bharatnatyam dance costume complete with temple jewellery set, head ornaments (nettri chutti), waist belt (odiyanam), earrings, necklace, and ankle ghungroos. Ideal for Arangetram and school classical dance performances.",
+    image: IMG("WhatsApp Image 2026-10-09 at 9.49.18 PM.jpeg"),
+    tags: ["bharatnatyam","classical dance","south indian","temple jewellery","dance costume","girls"],
+    featured: true,
+  },
   {
     id: "k-049",
     name: "Shree Ram, Sita, Laxman & Hanuman Kids Group Set",
@@ -1693,7 +1686,7 @@ export const products: Product[] = [
     id: "k-050",
     name: "Lokmanya Bal Gangadhar Tilak Freedom Fighter",
     category: "kids-mythological",
-    price: 350,
+    price: 250,
     description:
       "Traditional white angrakha kurta, iconic red Pagadi turban, iconic mustache prop, and white dhoti for Lokmanya Tilak fancy dress.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.47.17 PM (1).jpeg"),
@@ -1703,7 +1696,7 @@ export const products: Product[] = [
     id: "k-051",
     name: "Rani Lakshmibai / Jhansi Ki Rani with Sword & Shield",
     category: "kids-mythological",
-    price: 400,
+    price: 300,
     description:
       "Fierce warrior look with pink Nauvari dhoti, tricolor sash, pearl necklace, golden waistbelt, turban, metallic sword, and shield.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.47.18 PM.jpeg"),
@@ -1714,7 +1707,7 @@ export const products: Product[] = [
     id: "k-052",
     name: "Bharat Mata Patriotic Costume with Tricolor Flag",
     category: "kids-mythological",
-    price: 400,
+    price: 300,
     description:
       "Pristine white saree with golden border, royal crown mukut, golden temple ornaments, and Indian National Flag for patriotic celebrations.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.47.18 PM (2).jpeg"),
@@ -1725,7 +1718,7 @@ export const products: Product[] = [
     id: "k-053",
     name: "Mahatma Gandhi Costume with Round Specs & Shawl",
     category: "kids-mythological",
-    price: 300,
+    price: 250,
     description:
       "Authentic Mahatma Gandhi fancy dress costume with white khadi-style dhoti, white shoulder shawl, round spectacles, and peaceful look.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.47.21 PM.jpeg"),
@@ -1735,7 +1728,7 @@ export const products: Product[] = [
     id: "k-054",
     name: "Swami Vivekananda Saffron Robe & Turban Costume",
     category: "kids-mythological",
-    price: 350,
+    price: 250,
     description:
       "Regal saffron choga robe with matching pleated saffron turban, waistband, and inspiring look of Swami Vivekananda for annual programs.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.47.22 PM (1).jpeg"),
@@ -1745,7 +1738,7 @@ export const products: Product[] = [
     id: "k-055",
     name: "Netaji Subhash Chandra Bose Military INA Uniform",
     category: "kids-mythological",
-    price: 350,
+    price: 300,
     description:
       "Historic Indian National Army uniform featuring military jacket, INA officer peaked cap, cross belt, and spectacles.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.47.23 PM (3).jpeg"),
@@ -1756,7 +1749,7 @@ export const products: Product[] = [
     id: "k-056",
     name: "Warrior Prince Arjun with Golden Armor & Dhoti",
     category: "kids-mythological",
-    price: 450,
+    price: 350,
     description:
       "Grand Mahabharata warrior costume featuring embroidered golden armor koti, royal yellow pleated dhoti, golden mukut, and pearl necklaces.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.47.24 PM (1).jpeg"),
@@ -1766,7 +1759,7 @@ export const products: Product[] = [
     id: "k-057",
     name: "Little Bholenath / Lord Shiva Costume with Damru & Trishul",
     category: "kids-mythological",
-    price: 400,
+    price: 350,
     description:
       "Lord Shiva costume featuring faux tiger-print dhoti and sash, serpent snake prop, rudraksha malas, jata wig, trishul, and damru.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.47.19 PM (2).jpeg"),
@@ -1784,8 +1777,6 @@ export const products: Product[] = [
     tags: ["ram","sita","laxman","trio","vanvas","ramayan","kids"],
     featured: true,
   },
-
-  // ─── MYTHOLOGICAL (ADULTS / TEENS) ADDITIONS ──────────────────────────────
   {
     id: "m-006",
     name: "Royal Rama & Lakshmana Mythological Costumes (Teens/Adults)",
@@ -1800,20 +1791,18 @@ export const products: Product[] = [
     id: "m-007",
     name: "Ardhanarishvara / Half Shiva Half Parvati Costume",
     category: "mythological",
-    price: 600,
+    price: 400,
     description:
       "Intricate Ardhanarishwar costume combining the divine masculine (Lord Shiva with rudraksha & tiger skin) and divine feminine (Devi Parvati with silk saree & ornaments).",
     image: IMG("WhatsApp Image 2026-10-10 at 4.47.20 PM.jpeg"),
     tags: ["ardhanarishvara","shiva","parvati","divine","classical dance","mythological"],
     featured: true,
   },
-
-  // ─── FESTIVALS & SPECIAL THEMES (FRUITS, VEGGIES, FOOD & HELPERS) ─────────
   {
     id: "f-005",
     name: "Potato / Aloo Fancy Dress Cutout",
     category: "festival",
-    price: 250,
+    price: 200,
     description:
       "Cute golden-brown round potato tunic costume with shoulder ties for kindergarten and school fancy dress competitions.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.09.35 PM.jpeg"),
@@ -1823,7 +1812,7 @@ export const products: Product[] = [
     id: "f-006",
     name: "Bottle Gourd / Lauki (Dudhi) Fancy Dress",
     category: "festival",
-    price: 250,
+    price: 200,
     description:
       "Bright green smiling bottle gourd (louki / dudhi) tunic cutout with playful face and shoulder ties.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.09.35 PM (1).jpeg"),
@@ -1833,7 +1822,7 @@ export const products: Product[] = [
     id: "f-007",
     name: "Beetroot / Chukandar Cutout Costume",
     category: "festival",
-    price: 250,
+    price: 200,
     description:
       "Vibrant deep magenta beetroot cutout tunic with green leaves for healthy food theme school events.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.09.36 PM.jpeg"),
@@ -1843,7 +1832,7 @@ export const products: Product[] = [
     id: "f-008",
     name: "Green Peas / Matar Cutout Costume",
     category: "festival",
-    price: 250,
+    price: 200,
     description:
       "Fun smiling green pea pod cutout costume with cute round peas design for kids fancy dress.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.09.36 PM (1).jpeg"),
@@ -1853,7 +1842,7 @@ export const products: Product[] = [
     id: "f-009",
     name: "Ladyfinger / Bhindi Fancy Dress Cutout",
     category: "festival",
-    price: 250,
+    price: 200,
     description:
       "Bright green ladyfinger / okra shape cutout costume with friendly face art for school food days.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.09.36 PM (2).jpeg"),
@@ -1863,7 +1852,7 @@ export const products: Product[] = [
     id: "f-010",
     name: "Juicy Red Tomato Fancy Dress Cutout",
     category: "festival",
-    price: 250,
+    price: 200,
     description:
       "Round vibrant red tomato cutout tunic with green leaf crown for nursery and primary school shows.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.09.37 PM.jpeg"),
@@ -1873,7 +1862,7 @@ export const products: Product[] = [
     id: "f-011",
     name: "Crunchy Orange Carrot Cutout Costume",
     category: "festival",
-    price: 250,
+    price: 200,
     description:
       "Tapered orange carrot cutout costume with lush green leafy top for kids vegetable fancy dress.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.09.38 PM.jpeg"),
@@ -1883,7 +1872,7 @@ export const products: Product[] = [
     id: "f-012",
     name: "Sweet Red Apple Fancy Dress Cutout",
     category: "festival",
-    price: 250,
+    price: 200,
     description:
       "Classic bright red apple cutout tunic with smiling face and green stem for fruit day competitions.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.09.38 PM (1).jpeg"),
@@ -1893,7 +1882,7 @@ export const products: Product[] = [
     id: "f-013",
     name: "Fresh Green Pear Cutout Costume",
     category: "festival",
-    price: 250,
+    price: 200,
     description:
       "Light green teardrop-shaped pear fruit costume cutout with stem and leaf for school presentations.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.09.38 PM (2).jpeg"),
@@ -1903,7 +1892,7 @@ export const products: Product[] = [
     id: "f-014",
     name: "Giant Orange Pumpkin Fancy Dress",
     category: "festival",
-    price: 250,
+    price: 200,
     description:
       "Broad orange pumpkin cutout tunic for autumn, harvest festival, and vegetable fancy dress.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.09.39 PM.jpeg"),
@@ -1913,7 +1902,7 @@ export const products: Product[] = [
     id: "f-015",
     name: "White Cauliflower / Phool Gobhi Costume",
     category: "festival",
-    price: 250,
+    price: 200,
     description:
       "Cute white cauliflower florets cutout with leafy green border for healthy vegetables fancy dress.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.09.39 PM (1).jpeg"),
@@ -1923,7 +1912,7 @@ export const products: Product[] = [
     id: "f-016",
     name: "Fresh Green Spinach / Palak Costume",
     category: "festival",
-    price: 250,
+    price: 200,
     description:
       "Vibrant emerald green spinach bunch cutout representing iron and nutrition for school events.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.09.39 PM (2).jpeg"),
@@ -1933,7 +1922,7 @@ export const products: Product[] = [
     id: "f-017",
     name: "Crisp White Radish / Mooli Costume",
     category: "festival",
-    price: 250,
+    price: 200,
     description:
       "Tapered white radish tunic cutout with green pointed leaves for vegetable theme days.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.09.40 PM.jpeg"),
@@ -1943,7 +1932,7 @@ export const products: Product[] = [
     id: "f-018",
     name: "Golden Sweet Corn / Bhutta Costume",
     category: "festival",
-    price: 250,
+    price: 200,
     description:
       "Yellow cob design sweet corn cutout with green husk leaves for kids fancy dress.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.09.40 PM (1).jpeg"),
@@ -1953,7 +1942,7 @@ export const products: Product[] = [
     id: "f-019",
     name: "Royal Purple Brinjal / Baingan Costume",
     category: "festival",
-    price: 250,
+    price: 200,
     description:
       "Glossy purple brinjal / eggplant cutout tunic with green calyx stem for vegetable dress-up.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.09.40 PM (2).jpeg"),
@@ -1963,7 +1952,7 @@ export const products: Product[] = [
     id: "f-020",
     name: "Juicy Orange / Santra Cutout Costume",
     category: "festival",
-    price: 250,
+    price: 200,
     description:
       "Bright citrus orange fruit cutout with cheerful design for fruit theme celebrations.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.09.40 PM (3).jpeg"),
@@ -1973,7 +1962,7 @@ export const products: Product[] = [
     id: "f-021",
     name: "Full-Body Carrot Jumpsuit with Green Leaf Cap",
     category: "festival",
-    price: 300,
+    price: 200,
     description:
       "Wearable orange full-body carrot jumpsuit costume complete with green hood cap.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.09.41 PM.jpeg"),
@@ -1983,7 +1972,7 @@ export const products: Product[] = [
     id: "f-022",
     name: "Spicy Green Chilli / Mirchi Costume",
     category: "festival",
-    price: 250,
+    price: 200,
     description:
       "Curved vivid green chilli pepper cutout tunic with playful smile for school fancy dress.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.09.43 PM.jpeg"),
@@ -1993,7 +1982,7 @@ export const products: Product[] = [
     id: "f-023",
     name: "King of Fruits Mango / Aam Costume",
     category: "festival",
-    price: 250,
+    price: 200,
     description:
       "Golden-yellow Alphonso mango cutout costume representing the King of Fruits.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.09.43 PM (1).jpeg"),
@@ -2003,7 +1992,7 @@ export const products: Product[] = [
     id: "f-024",
     name: "Purple Sweet Grapes / Angoor Costume",
     category: "festival",
-    price: 250,
+    price: 200,
     description:
       "Cluster of juicy purple grapes cutout tunic for nursery and kindergarten fancy dress.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.09.43 PM (2).jpeg"),
@@ -2013,7 +2002,7 @@ export const products: Product[] = [
     id: "f-025",
     name: "Ruby Red Pomegranate / Anar Costume",
     category: "festival",
-    price: 250,
+    price: 200,
     description:
       "Bright ruby red pomegranate cutout costume with crown top for fruit day presentations.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.09.44 PM.jpeg"),
@@ -2023,7 +2012,7 @@ export const products: Product[] = [
     id: "f-026",
     name: "Full-Body Green Peas Jumpsuit with Pod & Cap",
     category: "festival",
-    price: 300,
+    price: 200,
     description:
       "Cozy full-body green peas jumpsuit with 3D pea pod chest attachment and matching green cap.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.10.33 PM.jpeg"),
@@ -2033,7 +2022,7 @@ export const products: Product[] = [
     id: "f-027",
     name: "McDonald's French Fries Packet with Cap",
     category: "festival",
-    price: 300,
+    price: 200,
     description:
       "Eye-catching French Fries pouch costume with golden fries print and matching red 'FRENCH FRIES' chef cap.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.10.33 PM (2).jpeg"),
@@ -2044,7 +2033,7 @@ export const products: Product[] = [
     id: "f-028",
     name: "Kurkure Masala Munch Packet with Cap",
     category: "festival",
-    price: 300,
+    price: 200,
     description:
       "Hilarious Kurkure Masala Munch snack pouch costume with crispy snacks graphic and matching red 'KURKURE' cap.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.10.33 PM (3).jpeg"),
@@ -2055,7 +2044,7 @@ export const products: Product[] = [
     id: "f-029",
     name: "Maggi 2-Minute Noodles Packet with Cap",
     category: "festival",
-    price: 300,
+    price: 200,
     description:
       "Iconic yellow Maggi 2-Minute Noodles packet costume with steaming noodles print and yellow 'MAGGI' cap.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.10.34 PM.jpeg"),
@@ -2066,7 +2055,7 @@ export const products: Product[] = [
     id: "f-030",
     name: "Airline Commercial Pilot Uniform with Cap & Tie",
     category: "festival",
-    price: 350,
+    price: 250,
     description:
       "Smart pilot costume with white captain shirt, shoulder epaulettes, gold-braided pilot peaked cap, and black tie.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.47.16 PM.jpeg"),
@@ -2077,7 +2066,7 @@ export const products: Product[] = [
     id: "f-031",
     name: "Indian Farmer / Kisan Dhoti Kurta with Gamcha",
     category: "festival",
-    price: 300,
+    price: 200,
     description:
       "Authentic Indian farmer attire with white kurta-dhoti, colorful pagdi turban, shoulder gamcha towel, and sickle/plough look.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.47.17 PM (2).jpeg"),
@@ -2087,7 +2076,7 @@ export const products: Product[] = [
     id: "f-032",
     name: "Master Chef Uniform with Apron, Hat & Belan",
     category: "festival",
-    price: 300,
+    price: 200,
     description:
       "Professional junior chef costume featuring double-breasted chef jacket with black buttons, puffy chef toque hat, and wooden rolling pin.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.47.19 PM (1).jpeg"),
@@ -2098,7 +2087,7 @@ export const products: Product[] = [
     id: "f-033",
     name: "Brave Firefighter Uniform with Helmet",
     category: "festival",
-    price: 350,
+    price: 250,
     description:
       "Emergency firefighter costume with high-visibility reflective neon stripes, fire rescue jacket, trousers, and firefighter helmet.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.47.19 PM (3).jpeg"),
@@ -2108,7 +2097,7 @@ export const products: Product[] = [
     id: "f-034",
     name: "Indian Army Commando / Soldier Camouflage Uniform",
     category: "festival",
-    price: 350,
+    price: 250,
     description:
       "Brave Indian Army combat dress in military camouflage print with commando beret cap, belt, and medals.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.47.20 PM (1).jpeg"),
@@ -2119,7 +2108,7 @@ export const products: Product[] = [
     id: "f-035",
     name: "Little Doctor / Surgeon Coat with Stethoscope",
     category: "festival",
-    price: 300,
+    price: 250,
     description:
       "Classic white doctor lab coat with red medical cross badge, toy stethoscope, and smart healthcare professional look.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.47.22 PM (3).jpeg"),
@@ -2130,7 +2119,7 @@ export const products: Product[] = [
     id: "f-036",
     name: "Academic Graduation Gown & Mortarboard Cap",
     category: "festival",
-    price: 350,
+    price: 250,
     description:
       "Prestigious black graduation robe with red collar sash, graduation coat, and mortarboard cap with tassel for convocation & fancy dress.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.47.23 PM.jpeg"),
@@ -2140,7 +2129,7 @@ export const products: Product[] = [
     id: "f-037",
     name: "Playful Monkey / Bandar Jumpsuit Costume",
     category: "festival",
-    price: 350,
+    price: 200,
     description:
       "Cute brown monkey jumpsuit with long tail, furry chest, and monkey ears hood for jungle safari fancy dress.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.47.17 PM (3).jpeg"),
@@ -2150,7 +2139,7 @@ export const products: Product[] = [
     id: "f-038",
     name: "King of the Jungle Lion Costume with Mane",
     category: "festival",
-    price: 350,
+    price: 200,
     description:
       "Fierce and cute lion jumpsuit with fluffy faux fur mane hood and tail for wild animal competitions.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.47.18 PM (1).jpeg"),
@@ -2161,7 +2150,7 @@ export const products: Product[] = [
     id: "f-039",
     name: "Colorful Green Parrot / Tota Costume",
     category: "festival",
-    price: 350,
+    price: 200,
     description:
       "Bright green parrot jumpsuit with red beak hood, wing-span sleeves, and tail feathers for bird fancy dress.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.47.19 PM.jpeg"),
@@ -2171,7 +2160,7 @@ export const products: Product[] = [
     id: "f-040",
     name: "Tall Giraffe Spotted Jumpsuit with Horns",
     category: "festival",
-    price: 350,
+    price: 200,
     description:
       "Adorable yellow and brown spotted giraffe costume with long neck hood, ossicone horns, and tail.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.47.20 PM (2).jpeg"),
@@ -2181,7 +2170,7 @@ export const products: Product[] = [
     id: "f-041",
     name: "Black & White Striped Zebra Costume",
     category: "festival",
-    price: 350,
+    price: 200,
     description:
       "Stunning monochrome striped zebra jumpsuit with zebra mane and hooded face for school safari themes.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.47.21 PM (2).jpeg"),
@@ -2191,7 +2180,7 @@ export const products: Product[] = [
     id: "f-042",
     name: "Royal Bengal Tiger Striped Costume",
     category: "festival",
-    price: 350,
+    price: 200,
     description:
       "Striking orange and black striped tiger costume representing the national animal of India.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.47.23 PM (1).jpeg"),
@@ -2201,7 +2190,7 @@ export const products: Product[] = [
     id: "f-043",
     name: "Fluffy White Rabbit / Bunny Costume",
     category: "festival",
-    price: 300,
+    price: 200,
     description:
       "Soft and cute white rabbit jumpsuit with tall pink-lined bunny ears and fluffy tail.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.47.24 PM.jpeg"),
@@ -2211,7 +2200,7 @@ export const products: Product[] = [
     id: "f-044",
     name: "National Bird Majestic Peacock / Mor Costume",
     category: "festival",
-    price: 400,
+    price: 200,
     description:
       "Gorgeous royal blue and emerald peacock costume with feathered fan tail and crest crown representing India's national bird.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.47.24 PM (2).jpeg"),
@@ -2222,7 +2211,7 @@ export const products: Product[] = [
     id: "f-045",
     name: "Traditional Japanese Kimono with Obi Sash (Girls)",
     category: "festival",
-    price: 400,
+    price: 300,
     description:
       "Elegant traditional Japanese kimono dress with wide floral sleeves, contrasting obi waist sash, and hand fan prop.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.47.21 PM (3).jpeg"),
@@ -2232,7 +2221,7 @@ export const products: Product[] = [
     id: "f-046",
     name: "Traditional Chinese Silk Changshan Costume",
     category: "festival",
-    price: 400,
+    price: 250,
     description:
       "Rich red and gold oriental patterned silk costume with mandarin collar and dragon motifs for international day.",
     image: IMG("WhatsApp Image 2026-10-10 at 4.47.22 PM (2).jpeg"),
