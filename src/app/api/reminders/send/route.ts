@@ -4,12 +4,12 @@ import { sendReturnReminderSms, sendOverdueAlertSms, sendBookingConfirmationSms 
 
 export async function GET(req: NextRequest) {
   try {
-    const logs = getSmsLogs();
-    const bookings = getBookings();
+    const logs = await getSmsLogs();
+    const bookings = await getBookings();
 
     // Check which bookings are due today or overdue
     const todayStr = new Date().toISOString().split("T")[0];
-    const dueToday = bookings.filter((b) => b.endDate === todayStr && b.status === "picked-up");
+    const dueToday = bookings.filter((b) => b.endDate === todayStr && (b.status === "picked-up" || b.status === "confirmed"));
     const overdue = bookings.filter((b) => b.endDate < todayStr && (b.status === "picked-up" || b.status === "overdue"));
 
     return NextResponse.json(
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { bookingId, type } = body; // type: "return-reminder" | "overdue-alert" | "booking-confirmation"
 
-    const bookings = getBookings();
+    const bookings = await getBookings();
     const booking = bookings.find((b) => b.id === bookingId);
 
     if (!booking) {
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
       result = await sendReturnReminderSms(booking);
       booking.reminderSent = true;
       booking.reminderSentAt = new Date().toISOString().replace("T", " ").substring(0, 16);
-      saveBooking(booking);
+      await saveBooking(booking);
     }
 
     return NextResponse.json({

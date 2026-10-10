@@ -3,7 +3,7 @@ import { getLiveProducts, updateInventoryPrice } from "@/lib/db";
 
 export async function GET(req: NextRequest) {
   try {
-    const products = getLiveProducts();
+    const products = await getLiveProducts();
     return NextResponse.json(
       { success: true, products },
       {
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "costumeId is required" }, { status: 400 });
     }
 
-    const updated = updateInventoryPrice(
+    const updated = await updateInventoryPrice(
       costumeId,
       Number(price),
       securityDeposit !== undefined ? Number(securityDeposit) : undefined,

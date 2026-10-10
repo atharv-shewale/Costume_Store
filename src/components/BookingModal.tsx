@@ -1,7 +1,27 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Calendar, Clock, ShieldCheck, CheckCircle2, MessageCircle, CreditCard, QrCode, AlertCircle, Sparkles, MapPin, Phone, User, Mail, FileText } from "lucide-react";
+import {
+  X,
+  Calendar,
+  Clock,
+  ShieldCheck,
+  CheckCircle2,
+  MessageCircle,
+  CreditCard,
+  QrCode,
+  AlertCircle,
+  Sparkles,
+  MapPin,
+  Phone,
+  User,
+  Mail,
+  FileText,
+  Upload,
+  Printer,
+  FileCheck,
+} from "lucide-react";
+import QRCode from "qrcode";
 import { Product } from "@/data/products";
 
 interface BookingModalProps {
@@ -22,6 +42,31 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
   const [minDate, setMinDate] = useState("2026-10-10");
   const [days, setDays] = useState(1);
 
+  // Reserved dates & conflict checking
+  const [reservedRanges, setReservedRanges] = useState<
+    { startDate: string; endDate: string; bookingId: string }[]
+  >([]);
+  const [dateConflictError, setDateConflictError] = useState<string | null>(null);
+
+  // Customer info
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [deliveryType, setDeliveryType] = useState<"store-pickup" | "home-delivery">("store-pickup");
+  const [address, setAddress] = useState("");
+  const [idProofType, setIdProofType] = useState("Aadhaar Card");
+  const [idProofNumber, setIdProofNumber] = useState("");
+  const [idProofImage, setIdProofImage] = useState<string | null>(null);
+  const [agreementChecked, setAgreementChecked] = useState(true);
+  const [notes, setNotes] = useState("");
+
+  // Payment
+  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "gpay-upi" | "cash">("razorpay");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [confirmedBooking, setConfirmedBooking] = useState<any | null>(null);
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | null>(null);
+
   // Initialize client dates on mount
   useEffect(() => {
     const dToday = new Date().toISOString().split("T")[0];
@@ -31,20 +76,44 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
     setEndDate(dTomorrow);
   }, []);
 
-  // Customer info
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [deliveryType, setDeliveryType] = useState<"store-pickup" | "home-delivery">("store-pickup");
-  const [address, setAddress] = useState("");
-  const [idProof, setIdProof] = useState("");
-  const [notes, setNotes] = useState("");
+  // Fetch reserved dates for this costume to prevent overlap
+  useEffect(() => {
+    if (product?.id) {
+      fetch(`/api/bookings/availability?costumeId=${product.id}`)
+        .then((r) => r.json())
+        .then((d) => {
+          if (d.success && Array.isArray(d.reservedRanges)) {
+            setReservedRanges(d.reservedRanges);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [product?.id]);
 
-  // Payment
-  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "gpay-upi" | "cash">("razorpay");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [confirmedBooking, setConfirmedBooking] = useState<any | null>(null);
+  // Real-time conflict validation
+  useEffect(() => {
+    if (!startDate || !endDate || !reservedRanges.length) {
+      setDateConflictError(null);
+      return;
+    }
+
+    const reqStart = new Date(startDate).getTime();
+    const reqEnd = new Date(endDate).getTime();
+
+    const conflict = reservedRanges.find((r) => {
+      const bStart = new Date(r.startDate).getTime();
+      const bEnd = new Date(r.endDate).getTime();
+      return reqStart <= bEnd && reqEnd >= bStart;
+    });
+
+    if (conflict) {
+      setDateConflictError(
+        `This costume is already reserved from ${conflict.startDate} to ${conflict.endDate} (Booking #${conflict.bookingId}). Please select different dates.`
+      );
+    } else {
+      setDateConflictError(null);
+    }
+  }, [startDate, endDate, reservedRanges]);
 
   const handleCloseAndReload = () => {
     onClose();
@@ -53,15 +122,22 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
     }
   };
 
-  // Auto-refresh page fallback after completed booking if customer does not dismiss
+  // Generate QR code upon confirmation
   useEffect(() => {
-    if (confirmedBooking) {
-      const timer = setTimeout(() => {
-        if (typeof window !== "undefined") {
-          window.location.reload();
-        }
-      }, 12000);
-      return () => clearTimeout(timer);
+    if (confirmedBooking?.id) {
+      QRCode.toDataURL(
+        JSON.stringify({
+          id: confirmedBooking.id,
+          costume: confirmedBooking.costumeName,
+          customer: confirmedBooking.customerName,
+          phone: confirmedBooking.customerPhone,
+          dates: `${confirmedBooking.startDate} to ${confirmedBooking.endDate}`,
+          deposit: `Rs. ${confirmedBooking.securityDeposit}`,
+        }),
+        { width: 200, margin: 1 }
+      )
+        .then((url) => setQrCodeDataUrl(url))
+        .catch(() => {});
     }
   }, [confirmedBooking]);
 
@@ -94,9 +170,29 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
 
   if (!product) return null;
 
+  const handleIdUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        setError("ID file size must be under 2MB");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setIdProofImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   async function handleBookingSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
+    if (dateConflictError) {
+      setError(dateConflictError);
+      return;
+    }
 
     if (!name.trim()) {
       setError("Please enter your full name");
@@ -109,6 +205,10 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
     }
     if (deliveryType === "home-delivery" && !address.trim()) {
       setError("Please provide your delivery address in Mumbai");
+      return;
+    }
+    if (!agreementChecked) {
+      setError("Please accept the rental terms and security deposit refund policy");
       return;
     }
 
@@ -130,7 +230,6 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
 
       // Step 2: Handle Payment Gateway
       if (paymentMethod === "razorpay" && window.Razorpay && !orderData.testMode) {
-        // Real Razorpay Checkout modal
         const options = {
           key: orderData.keyId,
           amount: orderData.amount,
@@ -200,7 +299,10 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
           paymentMethod,
           paymentStatus: paymentMethod === "cash" ? "pending" : "paid",
           paymentId,
-          notes: `${notes} ${idProof ? `[ID: ${idProof}]` : ""}`.trim(),
+          notes,
+          idProofType,
+          idProofUrl: idProofImage || idProofNumber || undefined,
+          agreementAccepted: agreementChecked,
         }),
       });
 
@@ -219,9 +321,9 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-sm animate-fade-in">
       <div
-        className="relative bg-white rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-y-auto shadow-2xl border border-amber-100 flex flex-col"
+        className="relative bg-white rounded-3xl max-w-2xl w-full max-h-[94vh] overflow-y-auto shadow-2xl border border-amber-100 flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -243,7 +345,7 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
           </button>
         </div>
 
-        {/* Success View */}
+        {/* Success View with QR Pass */}
         {confirmedBooking ? (
           <div className="p-6 sm:p-8 space-y-6 text-center">
             <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
@@ -261,6 +363,33 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
                 📱 Instant SMS Confirmation sent to <strong>{confirmedBooking.customerPhone}</strong>
               </div>
             </div>
+
+            {/* QR Code Pass Card */}
+            {qrCodeDataUrl && (
+              <div className="bg-white border-2 border-dashed border-amber-300 rounded-2xl p-4 flex flex-col sm:flex-row items-center gap-4 justify-center shadow-xs">
+                <img
+                  src={qrCodeDataUrl}
+                  alt="Booking QR Pass"
+                  className="w-36 h-36 rounded-xl border border-gray-200 shadow-sm"
+                />
+                <div className="text-left space-y-1 sm:max-w-xs">
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full">
+                    <QrCode size={12} /> Counter Pickup Pass
+                  </span>
+                  <h4 className="font-bold text-gray-900 text-sm">Scan at Shop Counter</h4>
+                  <p className="text-xs text-gray-600">
+                    Show this QR pass or mention <strong>#{confirmedBooking.id}</strong> at Moti Atya store to collect your costume instantly.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => window.print()}
+                    className="mt-2 inline-flex items-center gap-1.5 text-xs font-bold text-[#9b2335] hover:underline cursor-pointer"
+                  >
+                    <Printer size={13} /> Print Booking Pass
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Receipt Summary Card */}
             <div className="bg-[#fdf8f0] border border-amber-200 rounded-2xl p-5 text-left text-sm space-y-3">
@@ -296,7 +425,7 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
               <div className="bg-white/80 p-3 rounded-xl border border-amber-100 text-xs text-gray-700 flex items-start gap-2">
                 <Clock size={16} className="text-amber-700 shrink-0 mt-0.5" />
                 <span>
-                  <strong>Reminder Scheduled:</strong> You will receive an SMS reminder 24 hours before your return date (<strong>{confirmedBooking.endDate}</strong>) to return the costume and collect your ₹{confirmedBooking.securityDeposit} refund.
+                  <strong>Automated Return Reminder:</strong> You will receive an SMS reminder 24 hours before your return date (<strong>{confirmedBooking.endDate}</strong>) to return the costume and collect your ₹{confirmedBooking.securityDeposit} deposit refund.
                 </span>
               </div>
             </div>
@@ -305,7 +434,7 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
             <div className="flex flex-col sm:flex-row gap-3">
               <a
                 href={`https://wa.me/919820123456?text=${encodeURIComponent(
-                  `Namaste Moti Atya! I just completed booking #${confirmedBooking.id} for "${confirmedBooking.costumeName}". My name is ${confirmedBooking.customerName}. Please confirm pickup timings!`
+                  `Namaste Moti Atya! I just reserved booking #${confirmedBooking.id} for "${confirmedBooking.costumeName}". My name is ${confirmedBooking.customerName}. Pickup Date: ${confirmedBooking.startDate}. Please confirm pickup timings!`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -323,9 +452,6 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
                 <span>Done & Refresh Store</span>
               </button>
             </div>
-            <p className="text-[11px] text-gray-500 mt-2">
-              Note: Store page will refresh automatically to update costume availability and rental records.
-            </p>
           </div>
         ) : (
           /* Booking Form */
@@ -346,12 +472,23 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
               />
               <div className="flex-1">
                 <h3 className="font-bold text-gray-900 text-sm leading-snug">{product.name}</h3>
-                <p className="text-xs text-gray-500 mt-0.5">ID: {product.id}</p>
+                <p className="text-xs text-gray-500 mt-0.5">ID: {product.id} • Category: {product.category}</p>
                 <p className="text-xs font-black text-[#9b2335] mt-1">₹{dailyRate}/day</p>
               </div>
             </div>
 
-            {/* Date Pickers */}
+            {/* Date Conflict Notice if any */}
+            {dateConflictError && (
+              <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-xs flex items-start gap-2.5">
+                <AlertCircle size={18} className="text-amber-700 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="block font-bold">Dates Unavailable</strong>
+                  <span>{dateConflictError}</span>
+                </div>
+              </div>
+            )}
+
+            {/* Date Pickers with Real-time Lock Check */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-gray-700 mb-1 flex items-center gap-1.5">
@@ -363,7 +500,9 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
                   min={minDate}
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full text-sm p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#9b2335] bg-gray-50"
+                  className={`w-full text-sm p-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-[#9b2335] bg-gray-50 ${
+                    dateConflictError ? "border-amber-400 bg-amber-50/30" : "border-gray-300"
+                  }`}
                   required
                 />
               </div>
@@ -378,7 +517,9 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
                   min={startDate}
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full text-sm p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#9b2335] bg-gray-50"
+                  className={`w-full text-sm p-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-[#9b2335] bg-gray-50 ${
+                    dateConflictError ? "border-amber-400 bg-amber-50/30" : "border-gray-300"
+                  }`}
                   required
                 />
               </div>
@@ -413,7 +554,7 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
             {/* Customer Information */}
             <div className="space-y-3.5">
               <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500">
-                Customer Details (For SMS & Agreement)
+                Customer Details (For SMS & Rental Agreement)
               </h4>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
@@ -466,21 +607,55 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Govt ID Proof (Optional)</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Govt ID Type</label>
+                  <select
+                    value={idProofType}
+                    onChange={(e) => setIdProofType(e.target.value)}
+                    className="w-full text-sm p-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#9b2335] bg-white"
+                  >
+                    <option value="Aadhaar Card">Aadhaar Card</option>
+                    <option value="Driving License">Driving License</option>
+                    <option value="Voter ID">Voter ID</option>
+                    <option value="Student ID">Student ID</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* ID Proof Number & Photo Upload */}
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                    <FileText size={14} className="text-[#9b2335]" />
+                    {idProofType} Verification (Quick Verification)
+                  </label>
+                  <span className="text-[10px] text-slate-500">Security Requirement</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <input
+                    type="text"
+                    placeholder={`Enter ${idProofType} number`}
+                    value={idProofNumber}
+                    onChange={(e) => setIdProofNumber(e.target.value)}
+                    className="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#9b2335]"
+                  />
+
                   <div className="relative">
-                    <FileText size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input
-                      type="text"
-                      placeholder="Aadhaar / Voter ID number"
-                      value={idProof}
-                      onChange={(e) => setIdProof(e.target.value)}
-                      className="w-full text-sm pl-9 pr-3 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#9b2335]"
-                    />
+                    <label className="flex items-center justify-center gap-2 w-full text-xs p-2.5 rounded-xl border border-dashed border-slate-400 hover:border-[#9b2335] bg-white cursor-pointer text-slate-600 transition-all">
+                      <Upload size={14} />
+                      <span>{idProofImage ? "✓ ID Photo Attached" : "Upload ID Photo"}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleIdUpload}
+                        className="hidden"
+                      />
+                    </label>
                   </div>
                 </div>
               </div>
 
-              {/* Delivery or Pickup */}
+              {/* Collection Preference */}
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1.5">Collection Preference</label>
                 <div className="grid grid-cols-2 gap-3">
@@ -544,7 +719,7 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
                 >
                   <CreditCard size={18} className={paymentMethod === "razorpay" ? "text-[#9b2335]" : "text-gray-500"} />
                   <p className="text-xs font-bold text-gray-900 mt-1">Razorpay</p>
-                  <p className="text-[10px] text-gray-500">Cards / Netbanking / UPI</p>
+                  <p className="text-[10px] text-gray-500">Cards / UPI</p>
                 </button>
 
                 <button
@@ -558,7 +733,7 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
                 >
                   <QrCode size={18} className={paymentMethod === "gpay-upi" ? "text-[#9b2335]" : "text-gray-500"} />
                   <p className="text-xs font-bold text-gray-900 mt-1">Google Pay</p>
-                  <p className="text-[10px] text-gray-500">Direct UPI / QR Scan</p>
+                  <p className="text-[10px] text-gray-500">Direct UPI</p>
                 </button>
 
                 <button
@@ -572,7 +747,7 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
                 >
                   <span>💵</span>
                   <p className="text-xs font-bold text-gray-900 mt-1">Pay at Store</p>
-                  <p className="text-[10px] text-gray-500">Pay upon pickup</p>
+                  <p className="text-[10px] text-gray-500">Upon pickup</p>
                 </button>
               </div>
 
@@ -580,7 +755,6 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
               {paymentMethod === "gpay-upi" && (
                 <div className="bg-amber-50 p-4 rounded-2xl border border-amber-200 text-center space-y-2">
                   <div className="w-28 h-28 bg-white mx-auto rounded-xl p-2 shadow-sm border border-amber-100 flex items-center justify-center">
-                    {/* Simulated dynamic UPI QR code */}
                     <div className="text-center">
                       <QrCode size={64} className="mx-auto text-gray-800" />
                       <span className="text-[9px] font-bold text-amber-800 uppercase">Scan with GPay</span>
@@ -588,30 +762,47 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
                   </div>
                   <p className="text-xs font-mono font-bold text-gray-800">UPI ID: motiatya@okhdfcbank</p>
                   <p className="text-[11px] text-gray-600">
-                    Pay <strong>₹{totalAmount}</strong> via Google Pay, PhonePe, or Paytm. Clicking 'Confirm Rental' marks it as verified.
+                    Pay <strong>₹{totalAmount}</strong> via Google Pay or PhonePe.
                   </p>
                 </div>
               )}
+            </div>
+
+            {/* Digital Rental Agreement Checkbox */}
+            <div className="bg-emerald-50/60 border border-emerald-200 rounded-2xl p-3.5 flex items-start gap-3">
+              <input
+                type="checkbox"
+                id="rentalAgreement"
+                checked={agreementChecked}
+                onChange={(e) => setAgreementChecked(e.target.checked)}
+                className="mt-1 w-4 h-4 rounded text-[#9b2335] focus:ring-[#9b2335] border-gray-300 cursor-pointer"
+              />
+              <label htmlFor="rentalAgreement" className="text-xs text-gray-700 cursor-pointer leading-relaxed">
+                <span className="font-bold text-gray-900">Rental Agreement: </span>
+                I confirm that I will return the costume on or before <strong>{endDate}</strong> in good condition. The ₹{securityDeposit} security deposit will be 100% refunded upon return inspection.
+              </label>
             </div>
 
             {/* Submit Button */}
             <div className="pt-2">
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full bg-gradient-to-r from-[#9b2335] to-[#b91c1c] hover:from-[#7d1c2a] hover:to-[#991b1b] text-white py-4 rounded-2xl font-bold text-base shadow-lg shadow-red-900/20 hover:shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                disabled={loading || Boolean(dateConflictError)}
+                className="w-full bg-gradient-to-r from-[#9b2335] to-[#b91c1c] hover:from-[#7d1c2a] hover:to-[#991b1b] text-white py-4 rounded-2xl font-bold text-base shadow-lg shadow-red-900/20 hover:shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
               >
                 {loading ? (
                   <span>Processing Payment & Booking...</span>
+                ) : dateConflictError ? (
+                  <span>Select Available Dates to Proceed</span>
                 ) : (
                   <>
-                    <span>Confirm & Rent for ₹{totalAmount}</span>
+                    <span>Confirm & Reserve for ₹{totalAmount}</span>
                     <Sparkles size={18} />
                   </>
                 )}
               </button>
               <p className="text-center text-[11px] text-gray-400 mt-2">
-                🔒 Safe & secure checkout. Instant SMS notification sent upon confirmation.
+                🔒 Safe checkout. Instant SMS notification & digital QR pass generated upon confirmation.
               </p>
             </div>
           </form>

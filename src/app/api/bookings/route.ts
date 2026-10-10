@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getBookings, saveBooking, updateBookingStatus, Booking } from "@/lib/db";
+import {
+  getBookings,
+  saveBooking,
+  updateBookingStatus,
+  recordBookingReturn,
+  checkDateAvailability,
+  Booking,
+} from "@/lib/db";
 import { sendBookingConfirmationSms } from "@/lib/sms";
 
 export async function GET(req: NextRequest) {
@@ -8,7 +15,7 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get("status");
     const query = searchParams.get("q")?.toLowerCase();
 
-    let bookings = getBookings();
+    let bookings = await getBookings();
 
     if (status && status !== "all") {
       bookings = bookings.filter((b) => b.status === status);
@@ -43,6 +50,26 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
+    // 1. Strict Date Availability Check (Double-Booking Prevention)
+    if (body.costumeId && body.startDate && body.endDate) {
+      const { isAvailable, conflict } = await checkDateAvailability(
+        body.costumeId,
+        body.startDate,
+        body.endDate
+      );
+
+      if (!isAvailable && conflict) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Costume is already booked from ${conflict.startDate} to ${conflict.endDate} (Booking #${conflict.id}). Please pick different dates.`,
+            conflictBookingId: conflict.id,
+          },
+          { status: 409 }
+        );
+      }
+    }
+
     // Generate Booking ID: BK-XXXX
     const bookingId = `BK-${Math.floor(1000 + Math.random() * 9000)}`;
 
@@ -71,9 +98,12 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString().split("T")[0],
       notes: body.notes || "",
       reminderSent: false,
+      idProofUrl: body.idProofUrl || undefined,
+      idProofType: body.idProofType || undefined,
+      agreementAccepted: body.agreementAccepted ?? true,
     };
 
-    const saved = saveBooking(newBooking);
+    const saved = await saveBooking(newBooking);
 
     // Automatically trigger confirmation SMS
     try {
@@ -91,13 +121,34 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   try {
     const body = await req.json();
-    const { id, status, paymentStatus } = body;
+    const { id, status, paymentStatus, action, depositRefunded, depositDeduction, inspectionNotes } = body;
 
-    if (!id || !status) {
-      return NextResponse.json({ success: false, error: "Missing id or status" }, { status: 400 });
+    if (!id) {
+      return NextResponse.json({ success: false, error: "Missing booking id" }, { status: 400 });
     }
 
-    const updated = updateBookingStatus(id, status, paymentStatus);
+    // Specialized Inspection & Return Handler
+    if (action === "return" || depositRefunded !== undefined) {
+      const updated = await recordBookingReturn(id, {
+        depositRefunded: Number(depositRefunded) || 0,
+        depositDeduction: Number(depositDeduction) || 0,
+        inspectionNotes: inspectionNotes || "Returned in good condition",
+        paymentStatus: paymentStatus || "refunded",
+      });
+
+      if (!updated) {
+        return NextResponse.json({ success: false, error: "Booking not found" }, { status: 404 });
+      }
+
+      return NextResponse.json({ success: true, booking: updated });
+    }
+
+    // Standard status update
+    if (!status) {
+      return NextResponse.json({ success: false, error: "Missing status" }, { status: 400 });
+    }
+
+    const updated = await updateBookingStatus(id, status, paymentStatus);
     if (!updated) {
       return NextResponse.json({ success: false, error: "Booking not found" }, { status: 404 });
     }

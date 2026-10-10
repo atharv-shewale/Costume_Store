@@ -33,7 +33,12 @@ import {
   Lock,
   KeyRound,
   ShieldCheck,
+  Database,
+  Printer,
+  FileCheck,
+  MessageCircle,
 } from "lucide-react";
+import QRCode from "qrcode";
 import { products, Product } from "@/data/products";
 import AdminSecurityGate from "@/components/AdminSecurityGate";
 
@@ -63,6 +68,13 @@ interface Booking {
   notes?: string;
   reminderSent?: boolean;
   reminderSentAt?: string;
+  idProofUrl?: string;
+  idProofType?: string;
+  agreementAccepted?: boolean;
+  depositRefunded?: number;
+  depositDeduction?: number;
+  inspectionNotes?: string;
+  returnedAt?: string;
 }
 
 interface SmsLog {
@@ -112,6 +124,21 @@ export default function AdminPage() {
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
   const [lastSyncedTime, setLastSyncedTime] = useState<string>("");
   const prevBookingsCountRef = useRef<number | null>(null);
+
+  // Cloud Database (Supabase) Integration State
+  const [isSupabase, setIsSupabase] = useState(false);
+  const [showSupabaseModal, setShowSupabaseModal] = useState(false);
+
+  // Return Inspection & Deposit Reconciliation State
+  const [inspectingBooking, setInspectingBooking] = useState<Booking | null>(null);
+  const [returnCondition, setReturnCondition] = useState<"clean" | "minor" | "damage">("clean");
+  const [depositDeduction, setDepositDeduction] = useState<number>(0);
+  const [inspectionNotes, setInspectionNotes] = useState<string>("Costume returned in clean and undamaged condition");
+  const [processingReturn, setProcessingReturn] = useState(false);
+
+  // Counter QR Pass Slip Modal State
+  const [qrPassBooking, setQrPassBooking] = useState<Booking | null>(null);
+  const [qrPassUrl, setQrPassUrl] = useState<string | null>(null);
 
   // Search & Filters
   const [bookingSearch, setBookingSearch] = useState("");
@@ -180,7 +207,12 @@ export default function AdminPage() {
       }
 
       if (dataReminders.success) setSmsLogs(dataReminders.logs || []);
-      if (dataSettings.success) setSettings(dataSettings.settings);
+      if (dataSettings.success) {
+        setSettings(dataSettings.settings);
+        if (dataSettings.isSupabase !== undefined) {
+          setIsSupabase(dataSettings.isSupabase);
+        }
+      }
       if (dataInventory.success) setLiveProducts(dataInventory.products || []);
 
       const now = new Date();
@@ -278,6 +310,63 @@ export default function AdminPage() {
       }
     } catch (err) {
       showToast("Failed to update status");
+    }
+  };
+
+  // Process Return with Inspection & Deposit Reconciliation
+  const handleProcessReturn = async () => {
+    if (!inspectingBooking) return;
+    setProcessingReturn(true);
+    try {
+      const netRefund = Math.max(0, inspectingBooking.securityDeposit - depositDeduction);
+      const res = await fetch("/api/bookings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: inspectingBooking.id,
+          action: "return",
+          status: "returned",
+          paymentStatus: "refunded",
+          depositRefunded: netRefund,
+          depositDeduction,
+          inspectionNotes,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(`Return completed! Refunded ₹${netRefund} deposit to ${inspectingBooking.customerName}`);
+        setBookings((prev) =>
+          prev.map((b) => (b.id === inspectingBooking.id ? data.booking : b))
+        );
+        setInspectingBooking(null);
+      } else {
+        showToast(data.error || "Failed to process return");
+      }
+    } catch {
+      showToast("Error processing return");
+    } finally {
+      setProcessingReturn(false);
+    }
+  };
+
+  // Open Counter QR Pass Slip
+  const handleOpenQrPass = async (booking: Booking) => {
+    setQrPassBooking(booking);
+    try {
+      const url = await QRCode.toDataURL(
+        JSON.stringify({
+          bookingId: booking.id,
+          customer: booking.customerName,
+          costume: booking.costumeName,
+          phone: booking.customerPhone,
+          dates: `${booking.startDate} to ${booking.endDate}`,
+          deposit: `Rs. ${booking.securityDeposit}`,
+        }),
+        { width: 220, margin: 1 }
+      );
+      setQrPassUrl(url);
+    } catch {
+      setQrPassUrl(null);
     }
   };
 
@@ -486,6 +575,22 @@ export default function AdminPage() {
               >
                 <RefreshCw size={14} className={refreshing ? "animate-spin text-[#9b2335]" : ""} />
                 <span>{refreshing ? "Syncing..." : "Sync Now"}</span>
+              </button>
+
+              {/* Supabase Cloud Database Badge */}
+              <button
+                type="button"
+                onClick={() => setShowSupabaseModal(true)}
+                title="Click to check Supabase Cloud Database setup"
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-bold transition-all cursor-pointer shadow-xs ${
+                  isSupabase
+                    ? "bg-emerald-50 border-emerald-300 text-emerald-800 hover:bg-emerald-100"
+                    : "bg-amber-50 border-amber-300 text-amber-800 hover:bg-amber-100"
+                }`}
+              >
+                <Database size={13} className={isSupabase ? "text-emerald-600" : "text-amber-600"} />
+                <span className="hidden md:inline">{isSupabase ? "Supabase Cloud: Active" : "Database: Local Fallback"}</span>
+                <span className="md:hidden">{isSupabase ? "Cloud Active" : "Local DB"}</span>
               </button>
 
               <Link
@@ -898,41 +1003,47 @@ export default function AdminPage() {
                                       {b.status === "confirmed" && (
                                         <button
                                           onClick={() => handleUpdateBookingStatus(b.id, "picked-up")}
-                                          className="bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg transition-all"
+                                          className="bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-lg transition-all shadow-xs"
                                         >
                                           Mark Picked Up
                                         </button>
                                       )}
-                                      {b.status === "picked-up" && (
-                                        <>
-                                          <button
-                                            onClick={() => handleUpdateBookingStatus(b.id, "returned", "refunded")}
-                                            className="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg transition-all"
-                                            title="Costume returned, refund deposit"
-                                          >
-                                            Mark Returned & Refund Deposit
-                                          </button>
-                                          <button
-                                            onClick={() => handleUpdateBookingStatus(b.id, "overdue")}
-                                            className="bg-red-100 text-red-800 hover:bg-red-200 text-[10px] font-bold px-2 py-1 rounded-lg"
-                                          >
-                                            Mark Overdue
-                                          </button>
-                                        </>
-                                      )}
-                                      {b.status === "overdue" && (
+                                      {(b.status === "picked-up" || b.status === "overdue") && (
                                         <button
-                                          onClick={() => handleUpdateBookingStatus(b.id, "returned", "refunded")}
-                                          className="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg transition-all"
+                                          onClick={() => {
+                                            setInspectingBooking(b);
+                                            setDepositDeduction(0);
+                                            setReturnCondition("clean");
+                                            setInspectionNotes("Costume returned in pristine, undamaged condition");
+                                          }}
+                                          className="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 shadow-xs"
+                                          title="Inspect costume condition and calculate deposit refund"
                                         >
-                                          Resolved: Returned
+                                          <FileCheck size={12} />
+                                          <span>Inspect & Refund Deposit</span>
                                         </button>
                                       )}
                                       {b.status === "returned" && (
-                                        <span className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
-                                          <Check size={12} /> Deposit Refunded
-                                        </span>
+                                        <div className="space-y-0.5">
+                                          <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-bold flex items-center gap-1">
+                                            <Check size={12} /> Returned
+                                          </span>
+                                          {b.depositRefunded !== undefined && (
+                                            <span className="text-[9px] text-slate-500 block font-mono">
+                                              Refunded: ₹{b.depositRefunded} {b.depositDeduction ? `(-₹${b.depositDeduction})` : ""}
+                                            </span>
+                                          )}
+                                        </div>
                                       )}
+
+                                      <button
+                                        onClick={() => handleOpenQrPass(b)}
+                                        className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-bold px-2 py-1 rounded-lg transition-all flex items-center gap-1"
+                                        title="Generate counter QR pass"
+                                      >
+                                        <QrCode size={11} />
+                                        <span>QR Slip</span>
+                                      </button>
                                     </div>
                                   </div>
                                 </td>
@@ -949,17 +1060,19 @@ export default function AdminPage() {
                                     </button>
 
                                     <a
-                                      href={`https://wa.me/91${b.customerPhone}?text=${whatsappReminder}`}
+                                      href={`https://wa.me/91${b.customerPhone.replace(/[^0-9]/g, "").slice(-10)}?text=${encodeURIComponent(
+                                        `Namaste ${b.customerName}! Gentle return reminder from Moti Atya Costume Corner. Your rental for "${b.costumeName}" (Booking: #${b.id}) was for ${b.days} day(s) ending on ${b.endDate}. Please return it to our shop to collect your refundable security deposit of ₹${b.securityDeposit}. Store: Shop 4, Royal Market, Mira Road (+91 98201 23456). Thank you!`
+                                      )}`}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="flex items-center gap-1 bg-green-50 text-green-700 hover:bg-green-100 text-[10px] font-bold px-2 py-1 rounded-lg transition-all"
+                                      className="flex items-center gap-1 bg-[#25D366] hover:bg-[#20ba59] text-white text-[10px] font-bold px-2.5 py-1 rounded-lg transition-all shadow-xs"
                                     >
-                                      <MessageSquare size={11} />
+                                      <MessageCircle size={11} />
                                       <span>WhatsApp</span>
                                     </a>
 
                                     {b.reminderSent && (
-                                      <span className="text-[9px] text-slate-400 block">
+                                      <span className="text-[9px] text-slate-400 block font-mono">
                                         Last sent: {b.reminderSentAt || "Yes"}
                                       </span>
                                     )}
@@ -1798,6 +1911,281 @@ export default function AdminPage() {
           </>
         )}
       </div>
+
+      {/* ─── MODAL 1: RETURN INSPECTION & DEPOSIT RECONCILIATION ─── */}
+      {inspectingBooking && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in text-slate-800">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div>
+                <span className="text-[10px] font-bold uppercase text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+                  Counter Return & Deposit Reconciliation
+                </span>
+                <h3 className="text-base font-bold text-slate-900 mt-1">
+                  Return Check: #{inspectingBooking.id} • {inspectingBooking.costumeName}
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Customer: <strong>{inspectingBooking.customerName}</strong> ({inspectingBooking.customerPhone})
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setInspectingBooking(null)}
+                className="p-1 rounded-full text-slate-400 hover:text-slate-600 font-bold cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Costume Condition Selector */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-700">Costume Return Condition</label>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setReturnCondition("clean");
+                    setDepositDeduction(0);
+                    setInspectionNotes("Costume returned in pristine, undamaged condition");
+                  }}
+                  className={`p-2.5 rounded-xl border text-xs font-bold text-center transition-all cursor-pointer ${
+                    returnCondition === "clean"
+                      ? "border-emerald-500 bg-emerald-50 text-emerald-800 ring-2 ring-emerald-400/20"
+                      : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  ✨ Pristine (No Damage)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setReturnCondition("minor");
+                    setDepositDeduction(150);
+                    setInspectionNotes("Minor stains, dry-cleaning fee deducted");
+                  }}
+                  className={`p-2.5 rounded-xl border text-xs font-bold text-center transition-all cursor-pointer ${
+                    returnCondition === "minor"
+                      ? "border-amber-500 bg-amber-50 text-amber-800 ring-2 ring-amber-400/20"
+                      : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  🧺 Dry Clean Needed
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setReturnCondition("damage");
+                    setDepositDeduction(300);
+                    setInspectionNotes("Minor tear or missing accessory");
+                  }}
+                  className={`p-2.5 rounded-xl border text-xs font-bold text-center transition-all cursor-pointer ${
+                    returnCondition === "damage"
+                      ? "border-red-500 bg-red-50 text-red-800 ring-2 ring-red-400/20"
+                      : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  ⚠️ Damaged / Torn
+                </button>
+              </div>
+            </div>
+
+            {/* Deposit Calculation Box */}
+            <div className="bg-[#f8fafc] border border-slate-200 rounded-2xl p-4 space-y-2 text-xs">
+              <div className="flex justify-between text-slate-600">
+                <span>Security Deposit Held:</span>
+                <span className="font-bold text-slate-900">₹{inspectingBooking.securityDeposit}</span>
+              </div>
+              <div className="flex items-center justify-between text-slate-600">
+                <span>Deduction (Repair / Cleaning fee):</span>
+                <div className="flex items-center gap-1">
+                  <span className="text-red-600 font-bold">-₹</span>
+                  <input
+                    type="number"
+                    min={0}
+                    max={inspectingBooking.securityDeposit}
+                    value={depositDeduction}
+                    onChange={(e) => setDepositDeduction(Math.max(0, Number(e.target.value)))}
+                    className="w-20 px-2 py-1 text-right font-bold text-red-600 border border-slate-300 rounded-lg bg-white"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-between text-sm font-black text-slate-900 pt-2 border-t border-slate-200">
+                <span>Net Deposit Refund to Customer:</span>
+                <span className="text-emerald-600 text-base">
+                  ₹{Math.max(0, inspectingBooking.securityDeposit - depositDeduction)}
+                </span>
+              </div>
+            </div>
+
+            {/* Inspection Notes */}
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700">Inspection & Handover Notes</label>
+              <textarea
+                value={inspectionNotes}
+                onChange={(e) => setInspectionNotes(e.target.value)}
+                rows={2}
+                className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#9b2335]"
+                placeholder="Details on costume condition upon return..."
+              />
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setInspectingBooking(null)}
+                className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={processingReturn}
+                onClick={handleProcessReturn}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
+              >
+                {processingReturn ? "Processing..." : "Confirm Return & Refund Deposit"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── MODAL 2: COUNTER QR PASS & PRINTABLE SLIP ─── */}
+      {qrPassBooking && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in text-slate-800">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 text-center space-y-4">
+            <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+              <span className="text-xs font-bold text-slate-400 font-mono">#{qrPassBooking.id}</span>
+              <button
+                type="button"
+                onClick={() => setQrPassBooking(null)}
+                className="text-slate-400 hover:text-slate-600 font-bold cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div>
+              <h4 className="font-heading font-black text-lg text-slate-900">
+                Moti Atya Counter Pass
+              </h4>
+              <p className="text-xs text-slate-500 font-medium">{qrPassBooking.costumeName}</p>
+            </div>
+
+            {qrPassUrl && (
+              <div className="p-3 bg-white border-2 border-dashed border-amber-300 rounded-2xl inline-block shadow-xs">
+                <img src={qrPassUrl} alt="QR Code" className="w-44 h-44 mx-auto rounded-lg" />
+              </div>
+            )}
+
+            <div className="bg-slate-50 rounded-2xl p-3 text-xs text-left space-y-1">
+              <div className="flex justify-between">
+                <span className="text-slate-500">Customer:</span>
+                <span className="font-bold text-slate-900">{qrPassBooking.customerName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Phone:</span>
+                <span className="font-mono text-slate-900">{qrPassBooking.customerPhone}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Dates:</span>
+                <span className="font-bold text-slate-900">{qrPassBooking.startDate} to {qrPassBooking.endDate}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Deposit Held:</span>
+                <span className="font-bold text-emerald-700">₹{qrPassBooking.securityDeposit}</span>
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="flex-1 bg-slate-900 hover:bg-black text-white text-xs font-bold py-2.5 rounded-xl shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <Printer size={14} /> Print Counter Slip
+              </button>
+              <button
+                type="button"
+                onClick={() => setQrPassBooking(null)}
+                className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── MODAL 3: SUPABASE CLOUD SETUP & STATUS GUIDE ─── */}
+      {showSupabaseModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in text-slate-800">
+          <div className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                  <Database size={18} />
+                </div>
+                <div>
+                  <h4 className="font-heading font-black text-base text-slate-900">
+                    Supabase Cloud Database Integration
+                  </h4>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isSupabase ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}`}>
+                    {isSupabase ? "🟢 Supabase Connected (Production Cloud)" : "🟡 Currently Running on Safe Local Persistent Storage"}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowSupabaseModal(false)}
+                className="text-slate-400 hover:text-slate-600 font-bold cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs text-slate-600 leading-relaxed">
+              <p>
+                Supabase provides a free, scalable PostgreSQL database in the cloud, guaranteeing that bookings, deposits, and price overrides persist across all Vercel deployments.
+              </p>
+
+              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
+                <h5 className="font-bold text-slate-900 text-xs uppercase tracking-wider">3-Step Quick Setup Guide:</h5>
+                <ol className="list-decimal pl-4 space-y-1.5 font-medium">
+                  <li>
+                    Go to <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" className="text-[#9b2335] underline font-bold">supabase.com</a> and create a free project.
+                  </li>
+                  <li>
+                    Open the <strong>SQL Editor</strong> in Supabase and paste the script from <code className="bg-white px-1 py-0.5 rounded border border-slate-200 text-slate-800 font-bold">supabase/schema.sql</code>.
+                  </li>
+                  <li>
+                    Add the two environment variables to your Vercel project (Settings → Environment Variables):
+                    <div className="mt-1 bg-slate-900 text-amber-300 p-2.5 rounded-xl font-mono text-[11px] select-all space-y-1">
+                      <div>NEXT_PUBLIC_SUPABASE_URL=https://your-id.supabase.co</div>
+                      <div>SUPABASE_SERVICE_ROLE_KEY=your-service-role-key</div>
+                    </div>
+                  </li>
+                </ol>
+              </div>
+
+              <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-emerald-800 text-[11px]">
+                ✓ The database client code, automatic fallbacks, and SQL schema file (<code className="font-mono font-bold">supabase/schema.sql</code>) are completely ready in your repository!
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                type="button"
+                onClick={() => setShowSupabaseModal(false)}
+                className="bg-slate-900 hover:bg-black text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-xs cursor-pointer"
+              >
+                Understood & Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

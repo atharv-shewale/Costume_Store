@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import os from "os";
 import { products, Product } from "@/data/products";
+import { getSupabase, isSupabaseConfigured } from "@/lib/supabase";
 
 export interface Booking {
   id: string;
@@ -29,6 +30,14 @@ export interface Booking {
   notes?: string;
   reminderSent?: boolean;
   reminderSentAt?: string;
+  // Security & Lifecycle fields
+  idProofUrl?: string;
+  idProofType?: string;
+  agreementAccepted?: boolean;
+  depositRefunded?: number;
+  depositDeduction?: number;
+  inspectionNotes?: string;
+  returnedAt?: string;
 }
 
 export interface InventoryOverride {
@@ -45,7 +54,7 @@ export interface SmsLog {
   bookingId: string;
   customerName: string;
   phone: string;
-  type: "booking-confirmation" | "return-reminder" | "overdue-alert" | "custom";
+  type: "booking-confirmation" | "return-reminder" | "overdue-alert" | "deposit-refund" | "custom";
   message: string;
   status: "delivered" | "sent" | "failed";
   gateway: "fast2sms" | "twilio" | "simulator";
@@ -60,14 +69,14 @@ export interface AdminSettings {
   razorpayKeyId: string;
   razorpayKeySecret: string;
   razorpayTestMode: boolean;
-  upiId: string; // for Google Pay / PhonePe
+  upiId: string;
   smsGateway: "simulator" | "fast2sms" | "twilio";
   fast2SmsApiKey: string;
   twilioSid: string;
   twilioAuthToken: string;
   twilioFromPhone: string;
   autoRemindersEnabled: boolean;
-  reminderHoursBefore: number; // e.g. 24 hours before return
+  reminderHoursBefore: number;
 }
 
 const BUNDLED_DATA_DIR = path.join(process.cwd(), "data");
@@ -130,55 +139,152 @@ const defaultSettings: AdminSettings = {
   reminderHoursBefore: 24,
 };
 
-// Clean initial bookings (fresh store)
-function getInitialBookings(): Booking[] {
-  return [];
-}
-
-// Clean initial SMS logs (fresh store)
-function getInitialSmsLogs(): SmsLog[] {
-  return [];
-}
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   BOOKINGS API
-───────────────────────────────────────────────────────────────────────────── */
-
-export function getBookings(): Booking[] {
+function readLocalBookings(): Booking[] {
   try {
     if (fs.existsSync(BOOKINGS_FILE)) {
       const parsed = JSON.parse(fs.readFileSync(BOOKINGS_FILE, "utf8"));
-      if (Array.isArray(parsed)) {
-        memoryBookings = parsed;
-        return memoryBookings;
-      }
+      if (Array.isArray(parsed)) return parsed;
     }
-  } catch (err) {
-    console.warn("Could not read BOOKINGS_FILE:", err);
-  }
+  } catch {}
 
   try {
     if (fs.existsSync(BUNDLED_BOOKINGS_FILE)) {
       const parsed = JSON.parse(fs.readFileSync(BUNDLED_BOOKINGS_FILE, "utf8"));
-      if (Array.isArray(parsed)) {
-        memoryBookings = parsed;
-        safeWriteJson(BOOKINGS_FILE, memoryBookings);
-        return memoryBookings;
-      }
+      if (Array.isArray(parsed)) return parsed;
     }
   } catch {}
 
-  if (memoryBookings && Array.isArray(memoryBookings)) {
-    return memoryBookings;
-  }
-
-  memoryBookings = getInitialBookings();
-  safeWriteJson(BOOKINGS_FILE, memoryBookings);
-  return memoryBookings;
+  return memoryBookings || [];
 }
 
-export function saveBooking(booking: Booking): Booking {
-  const bookings = getBookings();
+/* ─────────────────────────────────────────────────────────────────────────────
+   SUPABASE ROW MAPPERS
+───────────────────────────────────────────────────────────────────────────── */
+
+function rowToBooking(row: any): Booking {
+  return {
+    id: row.id,
+    costumeId: row.costume_id,
+    costumeName: row.costume_name,
+    costumeImage: row.costume_image || "",
+    category: row.category || "general",
+    customerName: row.customer_name,
+    customerPhone: row.customer_phone,
+    customerEmail: row.customer_email || "",
+    customerAddress: row.customer_address || "",
+    deliveryType: row.delivery_type || "store-pickup",
+    startDate: typeof row.start_date === "string" ? row.start_date.split("T")[0] : row.start_date,
+    endDate: typeof row.end_date === "string" ? row.end_date.split("T")[0] : row.end_date,
+    days: Number(row.days) || 1,
+    dailyRate: Number(row.daily_rate) || 0,
+    rentalTotal: Number(row.rental_total) || 0,
+    securityDeposit: Number(row.security_deposit) || 500,
+    totalAmount: Number(row.total_amount) || 0,
+    paymentMethod: row.payment_method || "razorpay",
+    paymentStatus: row.payment_status || "paid",
+    paymentId: row.payment_id || "",
+    status: row.status || "confirmed",
+    createdAt: row.created_at ? new Date(row.created_at).toISOString().split("T")[0] : "",
+    notes: row.notes || "",
+    reminderSent: Boolean(row.reminder_sent),
+    reminderSentAt: row.reminder_sent_at || undefined,
+    idProofUrl: row.id_proof_url || undefined,
+    idProofType: row.id_proof_type || undefined,
+    agreementAccepted: row.agreement_accepted ?? true,
+    depositRefunded: row.deposit_refunded !== undefined && row.deposit_refunded !== null ? Number(row.deposit_refunded) : undefined,
+    depositDeduction: row.deposit_deduction !== undefined && row.deposit_deduction !== null ? Number(row.deposit_deduction) : undefined,
+    inspectionNotes: row.inspection_notes || undefined,
+    returnedAt: row.returned_at || undefined,
+  };
+}
+
+function bookingToRow(b: Booking): any {
+  return {
+    id: b.id,
+    costume_id: b.costumeId,
+    costume_name: b.costumeName,
+    costume_image: b.costumeImage,
+    category: b.category,
+    customer_name: b.customerName,
+    customer_phone: b.customerPhone,
+    customer_email: b.customerEmail || "",
+    customer_address: b.customerAddress || "",
+    delivery_type: b.deliveryType || "store-pickup",
+    start_date: b.startDate,
+    end_date: b.endDate,
+    days: b.days,
+    daily_rate: b.dailyRate,
+    rental_total: b.rentalTotal,
+    security_deposit: b.securityDeposit,
+    total_amount: b.totalAmount,
+    payment_method: b.paymentMethod,
+    payment_status: b.paymentStatus,
+    payment_id: b.paymentId,
+    status: b.status,
+    notes: b.notes || "",
+    reminder_sent: b.reminderSent || false,
+    reminder_sent_at: b.reminderSentAt || null,
+    id_proof_url: b.idProofUrl || null,
+    id_proof_type: b.idProofType || null,
+    agreement_accepted: b.agreementAccepted ?? true,
+    deposit_refunded: b.depositRefunded || 0,
+    deposit_deduction: b.depositDeduction || 0,
+    inspection_notes: b.inspectionNotes || "",
+    returned_at: b.returnedAt || null,
+  };
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   BOOKINGS API (WITH SUPABASE + LOCAL HYBRID SYNC)
+───────────────────────────────────────────────────────────────────────────── */
+
+export async function getBookings(): Promise<Booking[]> {
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("bookings")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (!error && Array.isArray(data)) {
+        const mapped = data.map(rowToBooking);
+        memoryBookings = mapped;
+        safeWriteJson(BOOKINGS_FILE, mapped);
+        if (!IS_SERVERLESS) safeWriteJson(BUNDLED_BOOKINGS_FILE, mapped);
+        return mapped;
+      } else if (error) {
+        console.warn("Supabase bookings fetch error:", error.message);
+      }
+    } catch (err) {
+      console.warn("Supabase connect error:", err);
+    }
+  }
+
+  // Fallback to local disk file
+  const local = readLocalBookings();
+  memoryBookings = local;
+  return local;
+}
+
+export function getBookingsSync(): Booking[] {
+  return readLocalBookings();
+}
+
+export async function saveBooking(booking: Booking): Promise<Booking> {
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      const row = bookingToRow(booking);
+      const { error } = await supabase.from("bookings").upsert(row);
+      if (error) console.warn("Supabase bookings upsert warning:", error.message);
+    } catch (err) {
+      console.warn("Supabase upsert error:", err);
+    }
+  }
+
+  // Always update local disk and memory cache
+  const bookings = readLocalBookings();
   const idx = bookings.findIndex((b) => b.id === booking.id);
   if (idx >= 0) {
     bookings[idx] = booking;
@@ -187,18 +293,17 @@ export function saveBooking(booking: Booking): Booking {
   }
   memoryBookings = bookings;
   safeWriteJson(BOOKINGS_FILE, bookings);
-  if (!IS_SERVERLESS) {
-    safeWriteJson(BUNDLED_BOOKINGS_FILE, bookings);
-  }
+  if (!IS_SERVERLESS) safeWriteJson(BUNDLED_BOOKINGS_FILE, bookings);
+
   return booking;
 }
 
-export function updateBookingStatus(
+export async function updateBookingStatus(
   id: string,
   status: Booking["status"],
   paymentStatus?: Booking["paymentStatus"]
-): Booking | null {
-  const bookings = getBookings();
+): Promise<Booking | null> {
+  const bookings = await getBookings();
   const booking = bookings.find((b) => b.id === id);
   if (!booking) return null;
 
@@ -206,19 +311,114 @@ export function updateBookingStatus(
   if (paymentStatus) {
     booking.paymentStatus = paymentStatus;
   }
-  memoryBookings = bookings;
-  safeWriteJson(BOOKINGS_FILE, bookings);
-  if (!IS_SERVERLESS) {
-    safeWriteJson(BUNDLED_BOOKINGS_FILE, bookings);
+
+  return await saveBooking(booking);
+}
+
+// Record return with inspection notes & deposit refund
+export async function recordBookingReturn(
+  id: string,
+  options: {
+    depositRefunded: number;
+    depositDeduction: number;
+    inspectionNotes: string;
+    paymentStatus?: Booking["paymentStatus"];
   }
-  return booking;
+): Promise<Booking | null> {
+  const bookings = await getBookings();
+  const booking = bookings.find((b) => b.id === id);
+  if (!booking) return null;
+
+  booking.status = "returned";
+  booking.depositRefunded = options.depositRefunded;
+  booking.depositDeduction = options.depositDeduction;
+  booking.inspectionNotes = options.inspectionNotes;
+  booking.returnedAt = new Date().toISOString();
+  if (options.paymentStatus) {
+    booking.paymentStatus = options.paymentStatus;
+  }
+
+  return await saveBooking(booking);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DATE AVAILABILITY & DOUBLE-BOOKING PREVENTION ENGINE
+───────────────────────────────────────────────────────────────────────────── */
+
+export async function checkDateAvailability(
+  costumeId: string,
+  startDate: string,
+  endDate: string,
+  excludeBookingId?: string
+): Promise<{ isAvailable: boolean; conflict?: Booking }> {
+  const bookings = await getBookings();
+  const reqStart = new Date(startDate).getTime();
+  const reqEnd = new Date(endDate).getTime();
+
+  for (const b of bookings) {
+    if (b.costumeId !== costumeId) continue;
+    if (b.status === "cancelled" || b.status === "returned") continue;
+    if (excludeBookingId && b.id === excludeBookingId) continue;
+
+    const bStart = new Date(b.startDate).getTime();
+    const bEnd = new Date(b.endDate).getTime();
+
+    // Standard interval overlap check: (StartA <= EndB) && (EndA >= StartB)
+    if (reqStart <= bEnd && reqEnd >= bStart) {
+      return { isAvailable: false, conflict: b };
+    }
+  }
+
+  return { isAvailable: true };
+}
+
+export async function getCostumeReservedDateRanges(costumeId: string): Promise<
+  { startDate: string; endDate: string; bookingId: string; status: string }[]
+> {
+  const bookings = await getBookings();
+  return bookings
+    .filter(
+      (b) =>
+        b.costumeId === costumeId &&
+        b.status !== "cancelled" &&
+        b.status !== "returned"
+    )
+    .map((b) => ({
+      startDate: b.startDate,
+      endDate: b.endDate,
+      bookingId: b.id,
+      status: b.status,
+    }));
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
    INVENTORY OVERRIDES (LIVE PRICES & AVAILABILITY)
 ───────────────────────────────────────────────────────────────────────────── */
 
-export function getInventoryOverrides(): Record<string, InventoryOverride> {
+export async function getInventoryOverrides(): Promise<Record<string, InventoryOverride>> {
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from("inventory_overrides").select("*");
+      if (!error && Array.isArray(data)) {
+        const map: Record<string, InventoryOverride> = {};
+        data.forEach((row: any) => {
+          map[row.costume_id] = {
+            id: row.costume_id,
+            price: row.price !== null ? Number(row.price) : undefined,
+            securityDeposit: row.security_deposit !== null ? Number(row.security_deposit) : undefined,
+            isAvailable: row.is_available ?? true,
+            isFeatured: row.is_featured ?? false,
+            updatedAt: row.updated_at,
+          };
+        });
+        memoryInventory = map;
+        safeWriteJson(INVENTORY_FILE, map);
+        return map;
+      }
+    } catch {}
+  }
+
   try {
     if (fs.existsSync(INVENTORY_FILE)) {
       const parsed = JSON.parse(fs.readFileSync(INVENTORY_FILE, "utf8"));
@@ -234,26 +434,23 @@ export function getInventoryOverrides(): Record<string, InventoryOverride> {
       const parsed = JSON.parse(fs.readFileSync(BUNDLED_INVENTORY_FILE, "utf8"));
       if (parsed && typeof parsed === "object") {
         memoryInventory = parsed;
-        safeWriteJson(INVENTORY_FILE, memoryInventory);
         return memoryInventory!;
       }
     }
   } catch {}
 
-  if (memoryInventory) return memoryInventory;
-  memoryInventory = {};
-  return memoryInventory;
+  return memoryInventory || {};
 }
 
-export function updateInventoryPrice(
+export async function updateInventoryPrice(
   costumeId: string,
   price: number,
   securityDeposit?: number,
   isAvailable?: boolean,
   isFeatured?: boolean
-): InventoryOverride {
-  const overrides = getInventoryOverrides();
-  overrides[costumeId] = {
+): Promise<InventoryOverride> {
+  const overrides = await getInventoryOverrides();
+  const updatedItem: InventoryOverride = {
     id: costumeId,
     price,
     securityDeposit: securityDeposit !== undefined ? securityDeposit : overrides[costumeId]?.securityDeposit,
@@ -261,14 +458,33 @@ export function updateInventoryPrice(
     isFeatured: isFeatured !== undefined ? isFeatured : overrides[costumeId]?.isFeatured,
     updatedAt: new Date().toISOString(),
   };
+
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      await supabase.from("inventory_overrides").upsert({
+        costume_id: costumeId,
+        price,
+        security_deposit: updatedItem.securityDeposit,
+        is_available: updatedItem.isAvailable,
+        is_featured: updatedItem.isFeatured,
+        updated_at: updatedItem.updatedAt,
+      });
+    } catch {}
+  }
+
+  overrides[costumeId] = updatedItem;
   memoryInventory = overrides;
   safeWriteJson(INVENTORY_FILE, overrides);
-  return overrides[costumeId];
+  if (!IS_SERVERLESS) safeWriteJson(BUNDLED_INVENTORY_FILE, overrides);
+
+  return updatedItem;
 }
 
-// Get product merged with live admin overrides
-export function getLiveProducts(): (Product & { isAvailable?: boolean; liveDeposit?: number })[] {
-  const overrides = getInventoryOverrides();
+export async function getLiveProducts(): Promise<
+  (Product & { isAvailable?: boolean; liveDeposit?: number })[]
+> {
+  const overrides = await getInventoryOverrides();
   return products.map((p) => {
     const ov = overrides[p.id];
     return {
@@ -285,13 +501,40 @@ export function getLiveProducts(): (Product & { isAvailable?: boolean; liveDepos
    SMS LOGS & REMINDERS
 ───────────────────────────────────────────────────────────────────────────── */
 
-export function getSmsLogs(): SmsLog[] {
+export async function getSmsLogs(): Promise<SmsLog[]> {
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("sms_logs")
+        .select("*")
+        .order("timestamp", { ascending: false });
+
+      if (!error && Array.isArray(data)) {
+        const mapped: SmsLog[] = data.map((r: any) => ({
+          id: r.id,
+          bookingId: r.booking_id,
+          customerName: r.customer_name,
+          phone: r.phone,
+          type: r.type,
+          message: r.message,
+          status: r.status,
+          gateway: r.gateway,
+          timestamp: r.timestamp ? new Date(r.timestamp).toISOString().replace("T", " ").substring(0, 19) : "",
+        }));
+        memorySmsLogs = mapped;
+        safeWriteJson(SMS_LOGS_FILE, mapped);
+        return mapped;
+      }
+    } catch {}
+  }
+
   try {
     if (fs.existsSync(SMS_LOGS_FILE)) {
       const parsed = JSON.parse(fs.readFileSync(SMS_LOGS_FILE, "utf8"));
       if (Array.isArray(parsed)) {
         memorySmsLogs = parsed;
-        return memorySmsLogs;
+        return memorySmsLogs!;
       }
     }
   } catch {}
@@ -301,34 +544,54 @@ export function getSmsLogs(): SmsLog[] {
       const parsed = JSON.parse(fs.readFileSync(BUNDLED_SMS_LOGS_FILE, "utf8"));
       if (Array.isArray(parsed)) {
         memorySmsLogs = parsed;
-        safeWriteJson(SMS_LOGS_FILE, memorySmsLogs);
-        return memorySmsLogs;
+        return memorySmsLogs!;
       }
     }
   } catch {}
 
-  if (memorySmsLogs && Array.isArray(memorySmsLogs)) {
-    return memorySmsLogs;
-  }
+  return memorySmsLogs || [];
+}
 
-  memorySmsLogs = getInitialSmsLogs();
-  safeWriteJson(SMS_LOGS_FILE, memorySmsLogs);
-  return memorySmsLogs;
+export function getSmsLogsSync(): SmsLog[] {
+  try {
+    if (fs.existsSync(SMS_LOGS_FILE)) {
+      const parsed = JSON.parse(fs.readFileSync(SMS_LOGS_FILE, "utf8"));
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch {}
+  return memorySmsLogs || [];
 }
 
 export function logSms(log: Omit<SmsLog, "id" | "timestamp">): SmsLog {
-  const logs = getSmsLogs();
+  const logs = getSmsLogsSync();
   const newLog: SmsLog = {
     ...log,
     id: `sms-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
     timestamp: new Date().toISOString().replace("T", " ").substring(0, 19),
   };
+
+  const supabase = getSupabase();
+  if (supabase) {
+    Promise.resolve(
+      supabase.from("sms_logs").insert({
+        id: newLog.id,
+        booking_id: newLog.bookingId,
+        customer_name: newLog.customerName,
+        phone: newLog.phone,
+        type: newLog.type,
+        message: newLog.message,
+        status: newLog.status,
+        gateway: newLog.gateway,
+        timestamp: new Date().toISOString(),
+      })
+    ).catch(() => {});
+  }
+
   logs.unshift(newLog);
   memorySmsLogs = logs;
   safeWriteJson(SMS_LOGS_FILE, logs);
-  if (!IS_SERVERLESS) {
-    safeWriteJson(BUNDLED_SMS_LOGS_FILE, logs);
-  }
+  if (!IS_SERVERLESS) safeWriteJson(BUNDLED_SMS_LOGS_FILE, logs);
+
   return newLog;
 }
 
@@ -337,12 +600,14 @@ export function logSms(log: Omit<SmsLog, "id" | "timestamp">): SmsLog {
 ───────────────────────────────────────────────────────────────────────────── */
 
 export function getSettings(): AdminSettings {
+  if (memorySettings) return memorySettings;
   try {
     if (fs.existsSync(SETTINGS_FILE)) {
       const parsed = JSON.parse(fs.readFileSync(SETTINGS_FILE, "utf8"));
       if (parsed && typeof parsed === "object") {
-        memorySettings = { ...defaultSettings, ...parsed };
-        return memorySettings!;
+        const merged: AdminSettings = { ...defaultSettings, ...parsed };
+        memorySettings = merged;
+        return merged;
       }
     }
   } catch {}
@@ -351,27 +616,49 @@ export function getSettings(): AdminSettings {
     if (fs.existsSync(BUNDLED_SETTINGS_FILE)) {
       const parsed = JSON.parse(fs.readFileSync(BUNDLED_SETTINGS_FILE, "utf8"));
       if (parsed && typeof parsed === "object") {
-        memorySettings = { ...defaultSettings, ...parsed };
-        safeWriteJson(SETTINGS_FILE, memorySettings);
-        return memorySettings!;
+        const merged: AdminSettings = { ...defaultSettings, ...parsed };
+        memorySettings = merged;
+        return merged;
       }
     }
   } catch {}
 
-  if (memorySettings) return memorySettings;
-  memorySettings = defaultSettings;
-  safeWriteJson(SETTINGS_FILE, memorySettings);
-  return memorySettings;
+  return defaultSettings;
 }
 
-export function updateSettings(settings: Partial<AdminSettings>): AdminSettings {
-  const current = getSettings();
+export async function updateSettings(settings: Partial<AdminSettings>): Promise<AdminSettings> {
+  const current = await getSettings();
   const updated = { ...current, ...settings };
+
+  const supabase = getSupabase();
+  if (supabase) {
+    try {
+      await supabase.from("admin_settings").upsert({
+        id: "default",
+        store_name: updated.storeName,
+        store_phone: updated.storePhone,
+        store_address: updated.storeAddress,
+        default_security_deposit: updated.defaultSecurityDeposit,
+        razorpay_key_id: updated.razorpayKeyId,
+        razorpay_key_secret: updated.razorpayKeySecret,
+        razorpay_test_mode: updated.razorpayTestMode,
+        upi_id: updated.upiId,
+        sms_gateway: updated.smsGateway,
+        fast2sms_api_key: updated.fast2SmsApiKey,
+        twilio_sid: updated.twilioSid,
+        twilio_auth_token: updated.twilioAuthToken,
+        twilio_from_phone: updated.twilioFromPhone,
+        auto_reminders_enabled: updated.autoRemindersEnabled,
+        reminder_hours_before: updated.reminderHoursBefore,
+        updated_at: new Date().toISOString(),
+      });
+    } catch {}
+  }
+
   memorySettings = updated;
   safeWriteJson(SETTINGS_FILE, updated);
-  if (!IS_SERVERLESS) {
-    safeWriteJson(BUNDLED_SETTINGS_FILE, updated);
-  }
+  if (!IS_SERVERLESS) safeWriteJson(BUNDLED_SETTINGS_FILE, updated);
+
   return updated;
 }
 
@@ -379,8 +666,8 @@ export function updateSettings(settings: Partial<AdminSettings>): AdminSettings 
    ANALYTICS & SUMMARY
 ───────────────────────────────────────────────────────────────────────────── */
 
-export function getAnalytics() {
-  const bookings = getBookings();
+export async function getAnalytics() {
+  const bookings = await getBookings();
   const totalRevenue = bookings.reduce(
     (sum, b) => (b.paymentStatus === "paid" || b.status === "returned" ? sum + b.rentalTotal : sum),
     0
@@ -388,10 +675,9 @@ export function getAnalytics() {
   const activeRentals = bookings.filter((b) => b.status === "picked-up").length;
   const overdueReturns = bookings.filter((b) => b.status === "overdue").length;
   const totalDepositsHeld = bookings
-    .filter((b) => b.status === "picked-up" || b.status === "overdue")
+    .filter((b) => b.status === "picked-up" || b.status === "overdue" || b.status === "confirmed")
     .reduce((sum, b) => sum + b.securityDeposit, 0);
 
-  // Group by category
   const categoryRevenue: Record<string, { count: number; revenue: number }> = {};
   bookings.forEach((b) => {
     if (!categoryRevenue[b.category]) {
@@ -408,5 +694,6 @@ export function getAnalytics() {
     overdueReturns,
     totalDepositsHeld,
     categoryRevenue,
+    isSupabase: isSupabaseConfigured(),
   };
 }
