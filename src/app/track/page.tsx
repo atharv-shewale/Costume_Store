@@ -4,8 +4,6 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import {
   Search,
   CheckCircle2,
@@ -141,11 +139,8 @@ function TrackContent() {
   };
 
   return (
-    <div className="min-h-screen bg-stone-50 flex flex-col font-sans">
-      <Navbar />
-
-      <main className="flex-1 pt-24 pb-16">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="pt-28 pb-20 bg-stone-50 min-h-screen">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header Banner */}
           <div className="text-center max-w-2xl mx-auto mb-10">
             <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#9b2335] bg-red-50 border border-red-100 px-3.5 py-1 rounded-full mb-3">
@@ -474,10 +469,7 @@ function TrackContent() {
             </div>
           </div>
         </div>
-      </main>
-
-      <Footer />
-    </div>
+      </div>
   );
 }
 

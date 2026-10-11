@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Menu, X, Sparkles } from "lucide-react";
 
 const navLinks = [
@@ -14,20 +15,24 @@ const navLinks = [
 ];
 
 export default function Navbar() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
+    const onScroll = () => setScrolled(window.scrollY > 15);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // On inner pages like /track and /catalogue, always keep solid backdrop for crisp contrast
+  const isSolid = pathname !== "/" || scrolled;
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-white/95 backdrop-blur-md shadow-lg border-b border-amber-100"
+        isSolid
+          ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-amber-100/80"
           : "bg-transparent"
       }`}
     >
@@ -48,16 +53,22 @@ export default function Navbar() {
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-6">
-            {navLinks.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className="text-sm font-medium text-gray-700 hover:text-[#9b2335] transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#9b2335] hover:after:w-full after:transition-all after:duration-300"
-              >
-                {l.label}
-              </Link>
-            ))}
-            {/* Admin link removed from public navbar as requested */}
+            {navLinks.map((l) => {
+              const isActive = pathname === l.href;
+              return (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  className={`text-sm font-medium transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:bg-[#9b2335] after:transition-all after:duration-300 ${
+                    isActive
+                      ? "text-[#9b2335] font-bold after:w-full"
+                      : "text-gray-700 hover:text-[#9b2335] after:w-0 hover:after:w-full"
+                  }`}
+                >
+                  {l.label}
+                </Link>
+              );
+            })}
             <a
               href="https://wa.me/919930192705?text=Hi!%20I%20want%20to%20enquire%20about%20costume%20rentals."
               target="_blank"
@@ -84,16 +95,21 @@ export default function Navbar() {
       {open && (
         <div className="md:hidden bg-white border-t border-amber-100 shadow-xl">
           <div className="px-4 py-4 flex flex-col gap-3">
-            {navLinks.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                onClick={() => setOpen(false)}
-                className="text-gray-700 font-medium py-2 border-b border-gray-100 hover:text-[#9b2335] transition-colors"
-              >
-                {l.label}
-              </Link>
-            ))}
+            {navLinks.map((l) => {
+              const isActive = pathname === l.href;
+              return (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  onClick={() => setOpen(false)}
+                  className={`py-2 border-b border-gray-100 font-medium transition-colors ${
+                    isActive ? "text-[#9b2335] font-bold" : "text-gray-700 hover:text-[#9b2335]"
+                  }`}
+                >
+                  {l.label}
+                </Link>
+              );
+            })}
             <a
               href="https://wa.me/919930192705?text=Hi!%20I%20want%20to%20enquire%20about%20costume%20rentals."
               target="_blank"
