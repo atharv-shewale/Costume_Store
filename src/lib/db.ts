@@ -248,6 +248,16 @@ export async function getBookings(): Promise<Booking[]> {
         .order("created_at", { ascending: false });
 
       if (!error && Array.isArray(data)) {
+        if (data.length === 0) {
+          const local = readLocalBookings();
+          if (local.length > 0) {
+            for (const b of local) {
+              await supabase.from("bookings").upsert(bookingToRow(b));
+            }
+            memoryBookings = local;
+            return local;
+          }
+        }
         const mapped = data.map(rowToBooking);
         memoryBookings = mapped;
         safeWriteJson(BOOKINGS_FILE, mapped);

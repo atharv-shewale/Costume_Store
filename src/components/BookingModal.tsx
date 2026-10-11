@@ -433,6 +433,14 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
             {/* Actions */}
             <div className="flex flex-col sm:flex-row gap-3">
               <a
+                href={`/track?id=${confirmedBooking.id}`}
+                className="flex-1 inline-flex items-center justify-center gap-2 bg-[#9b2335] hover:bg-[#7d1c2a] text-white py-3.5 px-5 rounded-2xl font-bold shadow-md hover:shadow-lg transition-all"
+              >
+                <Sparkles size={18} />
+                <span>Track Order Status</span>
+              </a>
+
+              <a
                 href={`https://wa.me/919930192705?text=${encodeURIComponent(
                   `Namaste! I just reserved booking #${confirmedBooking.id} for "${confirmedBooking.costumeName}". My name is ${confirmedBooking.customerName}. Pickup Date: ${confirmedBooking.startDate}. Please confirm pickup timings!`
                 )}`}
@@ -443,15 +451,15 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
                 <MessageCircle size={18} />
                 <span>WhatsApp Confirmation</span>
               </a>
-
-              <button
-                onClick={handleCloseAndReload}
-                className="flex-1 bg-slate-900 hover:bg-black text-white py-3.5 px-5 rounded-2xl font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <CheckCircle2 size={18} />
-                <span>Done & Refresh Store</span>
-              </button>
             </div>
+
+            <button
+              onClick={handleCloseAndReload}
+              className="w-full bg-slate-900 hover:bg-black text-white py-3 px-5 rounded-2xl font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer text-sm"
+            >
+              <CheckCircle2 size={16} />
+              <span>Done & Close</span>
+            </button>
           </div>
         ) : (
           /* Booking Form */

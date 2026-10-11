@@ -1,1 +1,10 @@
-{}
+{
+  "g-001": {
+    "id": "g-001",
+    "price": 650,
+    "securityDeposit": 500,
+    "isAvailable": true,
+    "isFeatured": true,
+    "updatedAt": "2026-10-11T12:47:20.877Z"
+  }
+}

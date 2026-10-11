@@ -2,5 +2,30 @@
   "adminPhone": "9930192705",
   "passcodeHash": "ee6e1c7189b900661593dca69327eb2d035df238da85fd76378903f689841b154f17174868037c5536f2bc2dc871791aa083fa2179776bfc434e50e78c513fcc",
   "passcodeSalt": "38032085d72ddc7c49568837063e9041",
-  "rememberedDevices": []
+  "rememberedDevices": [
+    {
+      "token": "dev_cf4e52f0040ebe42feea4366c4539c47f12efbb1b1b2010837f0dfd56d5fe26f",
+      "deviceName": "Remembered Admin Device",
+      "createdAt": "2026-10-11T12:47:24.503Z",
+      "expiresAt": "2026-11-10T12:47:24.503Z"
+    },
+    {
+      "token": "dev_a17336df9bd7b6612267dd62416aff4abc18f842d128ce3c50993463d649143f",
+      "deviceName": "Admin Session",
+      "createdAt": "2026-10-11T13:01:23.421Z",
+      "expiresAt": "2026-11-10T13:01:23.421Z"
+    },
+    {
+      "token": "dev_e20b48762d92dd90aa23f6bf136db8cb0c4fbc47d2445dbe7a38dadc96780519",
+      "deviceName": "Admin Session",
+      "createdAt": "2026-10-11T13:02:28.702Z",
+      "expiresAt": "2026-11-10T13:02:28.702Z"
+    }
+  ],
+  "activeOtp": {
+    "code": "159161",
+    "expiresAt": 1791724348710,
+    "phone": "9930192705",
+    "attempts": 0
+  }
 }

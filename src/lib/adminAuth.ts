@@ -120,8 +120,8 @@ export function verifyAdminPasscode(passcode: string): boolean {
     return true;
   }
 
-  // Also accept default master passcode or admin phone number if using fresh configuration
-  if (trimmed === DEFAULT_PASSCODE || trimmed === ADMIN_PHONE_NUMBER) {
+  // Also accept default master passcode if using fresh unconfigured state
+  if (trimmed === DEFAULT_PASSCODE) {
     return true;
   }
 

@@ -7,6 +7,7 @@ import { Menu, X, Sparkles } from "lucide-react";
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/catalogue", label: "Catalogue" },
+  { href: "/track", label: "Track Order" },
   { href: "/#categories", label: "Categories" },
   { href: "/#how-it-works", label: "How It Works" },
   { href: "/#contact", label: "Contact" },

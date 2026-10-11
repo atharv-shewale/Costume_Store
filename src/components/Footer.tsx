@@ -42,6 +42,7 @@ export default function Footer() {
             <ul className="space-y-2">
               {[
                 ["Home", "/"],
+                ["Track Order Status", "/track"],
                 ["Full Catalogue", "/catalogue"],
                 ["Garba & Navratri", "/catalogue?category=garba-navratri"],
                 ["Mythological Costumes", "/catalogue?category=mythological"],

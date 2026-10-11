@@ -1,13 +1,46 @@
 [
   {
-    "bookingId": "BK-5386",
-    "customerName": "Madhuri ",
-    "phone": "784239842168",
-    "type": "booking-confirmation",
-    "message": "Namaste Madhuri ! Your costume booking #BK-5386 for \"Mirror-Work Spinning Chaniya\" is confirmed for 2026-10-10 to 2026-10-11. Total: Rs.1050 (incl. Rs.500 refundable deposit). Store: Moti Atya Costume Corner, Mumbai (+91 98201 23456).",
+    "bookingId": "ADMIN-SECURITY",
+    "customerName": "Store Admin (9930192705)",
+    "phone": "9930192705",
+    "type": "custom",
+    "message": "Namaste! Your Moti Atya Costume Store Admin Security OTP is 159161. Valid for 10 minutes. Do not share this OTP with anyone. Helpline: +91 99301 92705",
     "status": "delivered",
     "gateway": "simulator",
-    "id": "sms-1791616910746-794",
-    "timestamp": "2026-10-10 07:21:50"
+    "id": "sms-1791723748711-565",
+    "timestamp": "2026-10-11 13:02:28"
+  },
+  {
+    "bookingId": "ADMIN-SECURITY",
+    "customerName": "Store Admin (9930192705)",
+    "phone": "9930192705",
+    "type": "custom",
+    "message": "Namaste! Your Moti Atya Costume Store Admin Security OTP is 483802. Valid for 10 minutes. Do not share this OTP with anyone. Helpline: +91 99301 92705",
+    "status": "delivered",
+    "gateway": "simulator",
+    "id": "sms-1791723683439-159",
+    "timestamp": "2026-10-11 13:01:23"
+  },
+  {
+    "id": "sms-1791722844935-365",
+    "bookingId": "BK-1569",
+    "customerName": "Aarav QA Tester",
+    "phone": "9930192705",
+    "type": "return-reminder",
+    "message": "REMINDER from Costume Store Fancy dress Rental Shop: Your rented costume \"Radha Luxury Mirror Chaniya\" (Booking #BK-1569) is due for return by 2026-10-27. Please return it in clean condition to collect your Rs.500 refundable deposit! Helpline: +91 99301 92705",
+    "status": "delivered",
+    "gateway": "simulator",
+    "timestamp": "2026-10-11 12:47:24"
+  },
+  {
+    "id": "sms-1791722842069-823",
+    "bookingId": "BK-1569",
+    "customerName": "Aarav QA Tester",
+    "phone": "9930192705",
+    "type": "booking-confirmation",
+    "message": "Namaste Aarav QA Tester! Your costume booking #BK-1569 for \"Radha Luxury Mirror Chaniya\" is confirmed for 2026-10-25 to 2026-10-27. Total: Rs.1800 (incl. Rs.500 refundable deposit). Store: Costume Store Fancy dress Rental Shop, Mumbai (+91 99301 92705).",
+    "status": "delivered",
+    "gateway": "simulator",
+    "timestamp": "2026-10-11 12:47:22"
   }
 ]
