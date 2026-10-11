@@ -34,7 +34,10 @@ const DATA_DIR = IS_SERVERLESS ? path.join(os.tmpdir(), "moti_atya_data") : BUND
 const SECURITY_FILE = path.join(DATA_DIR, "admin_security.json");
 const BUNDLED_SECURITY_FILE = path.join(BUNDLED_DATA_DIR, "admin_security.json");
 
-export const ADMIN_PHONE_NUMBER = "9930192705";
+export const ADMIN_PHONE_NUMBER =
+  process.env.ADMIN_MASTER_PHONE ||
+  process.env.ADMIN_PHONE ||
+  "9930192705";
 export const DEFAULT_PASSCODE = "MotiAtya@2026";
 
 let inMemorySecurityConfig: AdminSecurityConfig | null = null;
@@ -221,7 +224,7 @@ export async function sendOtpToAdmin(): Promise<{
   saveSecurityConfig(config);
 
   // Send via SMS
-  const settings = getSettings();
+  const settings = await getSettings();
   const text = `Namaste! Your Moti Atya Costume Store Admin Security OTP is ${otpCode}. Valid for 10 minutes. Do not share this OTP with anyone. Helpline: ${settings.storePhone}`;
   await sendSms(phone, text, "custom", null);
 

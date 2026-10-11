@@ -1,4 +1,4 @@
-import { Booking, logSms, getSettings, SmsLog } from "./db";
+import { Booking, logSms, getSettings, getSettingsSync, SmsLog } from "./db";
 
 export interface SmsResult {
   success: boolean;
@@ -17,7 +17,7 @@ export async function sendSms(
   type: SmsLog["type"],
   booking?: Booking | null
 ): Promise<SmsResult> {
-  const settings = getSettings();
+  const settings = await getSettings();
   const cleanPhone = phone.replace(/[^0-9]/g, "");
 
   // 1. Try Fast2SMS if configured
@@ -40,7 +40,7 @@ export async function sendSms(
 
       const data = await response.json();
       if (data.return) {
-        logSms({
+        await logSms({
           bookingId: booking?.id || "ADMIN-SECURITY",
           customerName: booking?.customerName || "Store Admin (9930192705)",
           phone: cleanPhone,
@@ -86,7 +86,7 @@ export async function sendSms(
 
       const twilioData = await response.json();
       if (response.ok && twilioData.sid) {
-        logSms({
+        await logSms({
           bookingId: booking?.id || "ADMIN-SECURITY",
           customerName: booking?.customerName || "Store Admin (9930192705)",
           phone: cleanPhone,
@@ -103,7 +103,7 @@ export async function sendSms(
   }
 
   // 3. Robust Live Simulator (default): Logs to database, tracked in Admin Panel
-  logSms({
+  await logSms({
     bookingId: booking?.id || "ADMIN-SECURITY",
     customerName: booking?.customerName || "Store Admin (9930192705)",
     phone: cleanPhone,
@@ -125,7 +125,7 @@ export async function sendSms(
  * Send Security OTP SMS to Admin phone (99301 92705)
  */
 export async function sendAdminOtpSms(phone: string, otp: string): Promise<SmsResult> {
-  const settings = getSettings();
+  const settings = await getSettings();
   const text = `Namaste! Your Moti Atya Costume Store Admin Security OTP is ${otp}. Valid for 10 minutes. Do not share this OTP with anyone. Store Helpline: ${settings.storePhone}`;
   return sendSms(phone, text, "custom", null);
 }
@@ -134,7 +134,7 @@ export async function sendAdminOtpSms(phone: string, otp: string): Promise<SmsRe
  * Send Booking Confirmation SMS
  */
 export async function sendBookingConfirmationSms(booking: Booking): Promise<SmsResult> {
-  const settings = getSettings();
+  const settings = await getSettings();
   const text = `Namaste ${booking.customerName}! Your costume booking #${booking.id} for "${booking.costumeName}" is confirmed for ${booking.startDate} to ${booking.endDate}. Total: Rs.${booking.totalAmount} (incl. Rs.${booking.securityDeposit} refundable deposit). Store: ${settings.storeName}, Mumbai (${settings.storePhone}).`;
   return sendSms(booking.customerPhone, text, "booking-confirmation", booking);
 }
@@ -143,7 +143,7 @@ export async function sendBookingConfirmationSms(booking: Booking): Promise<SmsR
  * Send 1-Day Return Reminder SMS
  */
 export async function sendReturnReminderSms(booking: Booking): Promise<SmsResult> {
-  const settings = getSettings();
+  const settings = await getSettings();
   const text = `REMINDER from ${settings.storeName}: Your rented costume "${booking.costumeName}" (Booking #${booking.id}) is due for return by ${booking.endDate}. Please return it in clean condition to collect your Rs.${booking.securityDeposit} refundable deposit! Helpline: ${settings.storePhone}`;
   return sendSms(booking.customerPhone, text, "return-reminder", booking);
 }
@@ -152,7 +152,7 @@ export async function sendReturnReminderSms(booking: Booking): Promise<SmsResult
  * Send Overdue Alert SMS
  */
 export async function sendOverdueAlertSms(booking: Booking): Promise<SmsResult> {
-  const settings = getSettings();
+  const settings = await getSettings();
   const text = `URGENT ALERT: Your costume rental "${booking.costumeName}" (Booking #${booking.id}) was due on ${booking.endDate} and is now OVERDUE. Please return to ${settings.storeName} immediately to avoid late fees. Contact: ${settings.storePhone}`;
   return sendSms(booking.customerPhone, text, "overdue-alert", booking);
 }
@@ -161,7 +161,7 @@ export async function sendOverdueAlertSms(booking: Booking): Promise<SmsResult> 
  * Helper to generate a direct 1-click WhatsApp web reminder link for the admin
  */
 export function getWhatsAppReminderLink(booking: Booking, type: "reminder" | "overdue" | "confirmed"): string {
-  const settings = getSettings();
+  const settings = getSettingsSync();
   let cleanPhone = booking.customerPhone.replace(/[^0-9]/g, "");
   if (!cleanPhone.startsWith("91") && cleanPhone.length === 10) {
     cleanPhone = "91" + cleanPhone;

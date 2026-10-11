@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { amount, costumeName, customerName, customerPhone } = body;
 
-    const settings = getSettings();
+    const settings = await getSettings();
     const amountInPaise = Math.round(Number(amount) * 100);
 
     // If real keys are provided and not test placeholders

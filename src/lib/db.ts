@@ -1,8 +1,5 @@
-import fs from "fs";
-import path from "path";
-import os from "os";
 import { products, Product } from "@/data/products";
-import { getSupabase, isSupabaseConfigured } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 
 export interface Booking {
   id: string;
@@ -79,82 +76,43 @@ export interface AdminSettings {
   reminderHoursBefore: number;
 }
 
-const BUNDLED_DATA_DIR = path.join(process.cwd(), "data");
-const IS_SERVERLESS =
-  !!process.env.VERCEL ||
-  !!process.env.AWS_LAMBDA_FUNCTION_NAME ||
-  process.cwd().startsWith("/var/task");
-const DATA_DIR = IS_SERVERLESS ? path.join(os.tmpdir(), "moti_atya_data") : BUNDLED_DATA_DIR;
+// In-memory cache to speed up repeat reads within serverless lifecycle
+let cachedSettings: AdminSettings | null = null;
+let cachedInventory: Record<string, InventoryOverride> | null = null;
 
-function ensureDataDir() {
-  try {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
-    }
-  } catch {}
-}
-
-const BOOKINGS_FILE = path.join(DATA_DIR, "bookings.json");
-const BUNDLED_BOOKINGS_FILE = path.join(BUNDLED_DATA_DIR, "bookings.json");
-
-const INVENTORY_FILE = path.join(DATA_DIR, "inventory_overrides.json");
-const BUNDLED_INVENTORY_FILE = path.join(BUNDLED_DATA_DIR, "inventory_overrides.json");
-
-const SMS_LOGS_FILE = path.join(DATA_DIR, "sms_logs.json");
-const BUNDLED_SMS_LOGS_FILE = path.join(BUNDLED_DATA_DIR, "sms_logs.json");
-
-const SETTINGS_FILE = path.join(DATA_DIR, "settings.json");
-const BUNDLED_SETTINGS_FILE = path.join(BUNDLED_DATA_DIR, "settings.json");
-
-let memoryBookings: Booking[] | null = null;
-let memoryInventory: Record<string, InventoryOverride> | null = null;
-let memorySmsLogs: SmsLog[] | null = null;
-let memorySettings: AdminSettings | null = null;
-
-function safeWriteJson(filePath: string, data: any) {
-  try {
-    ensureDataDir();
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
-  } catch (err) {
-    console.warn(`Filesystem write skipped (${filePath}):`, err);
-  }
-}
-
-// Default initial settings
-const defaultSettings: AdminSettings = {
+// Default store fallback values
+export const defaultSettings: AdminSettings = {
   storeName: "Costume Store Fancy dress Rental Shop",
   storePhone: "+91 99301 92705",
-  storeAddress: "SHOP A1, Ostwal Kiran Apartment, Mira Bhayandar Rd, opp. BHARAT/Old petrol Pump, Mira Road East, Mumbai, Maharashtra 401105",
+  storeAddress:
+    "SHOP A1, Ostwal Kiran Apartment, Mira Bhayandar Rd, opp. BHARAT/Old petrol Pump, Mira Road East, Mumbai, Maharashtra 401105",
   defaultSecurityDeposit: 500,
-  razorpayKeyId: "rzp_test_MotiAtyaCostumes",
-  razorpayKeySecret: "mock_secret_key_12345",
+  razorpayKeyId:
+    process.env.RAZORPAY_KEY_ID ||
+    process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
+    "rzp_test_MotiAtyaCostumes",
+  razorpayKeySecret:
+    process.env.RAZORPAY_KEY_SECRET ||
+    "mock_secret_key_12345",
   razorpayTestMode: true,
-  upiId: "9930192705@okbizaxis",
-  smsGateway: "simulator",
-  fast2SmsApiKey: "",
-  twilioSid: "",
-  twilioAuthToken: "",
-  twilioFromPhone: "",
+  upiId: process.env.STORE_UPI_ID || "9930192705@okbizaxis",
+  smsGateway: (process.env.SMS_GATEWAY as AdminSettings["smsGateway"]) || "simulator",
+  fast2SmsApiKey: process.env.FAST2SMS_API_KEY || "",
+  twilioSid: process.env.TWILIO_SID || "",
+  twilioAuthToken: process.env.TWILIO_AUTH_TOKEN || "",
+  twilioFromPhone: process.env.TWILIO_FROM_PHONE || "",
   autoRemindersEnabled: true,
   reminderHoursBefore: 24,
 };
 
-function readLocalBookings(): Booking[] {
-  try {
-    if (fs.existsSync(BOOKINGS_FILE)) {
-      const parsed = JSON.parse(fs.readFileSync(BOOKINGS_FILE, "utf8"));
-      if (Array.isArray(parsed)) return parsed;
-    }
-  } catch {}
-
-  try {
-    if (fs.existsSync(BUNDLED_BOOKINGS_FILE)) {
-      const parsed = JSON.parse(fs.readFileSync(BUNDLED_BOOKINGS_FILE, "utf8"));
-      if (Array.isArray(parsed)) return parsed;
-    }
-  } catch {}
-
-  return memoryBookings || [];
+function getRequiredSupabase() {
+  const supabase = getSupabase();
+  if (!supabase) {
+    throw new Error(
+      "Supabase database connection is not configured. Please set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY."
+    );
+  }
+  return supabase;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -191,8 +149,14 @@ function rowToBooking(row: any): Booking {
     idProofUrl: row.id_proof_url || undefined,
     idProofType: row.id_proof_type || undefined,
     agreementAccepted: row.agreement_accepted ?? true,
-    depositRefunded: row.deposit_refunded !== undefined && row.deposit_refunded !== null ? Number(row.deposit_refunded) : undefined,
-    depositDeduction: row.deposit_deduction !== undefined && row.deposit_deduction !== null ? Number(row.deposit_deduction) : undefined,
+    depositRefunded:
+      row.deposit_refunded !== undefined && row.deposit_refunded !== null
+        ? Number(row.deposit_refunded)
+        : undefined,
+    depositDeduction:
+      row.deposit_deduction !== undefined && row.deposit_deduction !== null
+        ? Number(row.deposit_deduction)
+        : undefined,
     inspectionNotes: row.inspection_notes || undefined,
     returnedAt: row.returned_at || undefined,
   };
@@ -234,76 +198,66 @@ function bookingToRow(b: Booking): any {
   };
 }
 
+function rowToSettings(row: any): AdminSettings {
+  return {
+    storeName: row.store_name || defaultSettings.storeName,
+    storePhone: row.store_phone || defaultSettings.storePhone,
+    storeAddress: row.store_address || defaultSettings.storeAddress,
+    defaultSecurityDeposit:
+      row.default_security_deposit !== null && row.default_security_deposit !== undefined
+        ? Number(row.default_security_deposit)
+        : defaultSettings.defaultSecurityDeposit,
+    razorpayKeyId: row.razorpay_key_id || defaultSettings.razorpayKeyId,
+    razorpayKeySecret: row.razorpay_key_secret || defaultSettings.razorpayKeySecret,
+    razorpayTestMode:
+      row.razorpay_test_mode !== null && row.razorpay_test_mode !== undefined
+        ? Boolean(row.razorpay_test_mode)
+        : defaultSettings.razorpayTestMode,
+    upiId: row.upi_id || defaultSettings.upiId,
+    smsGateway: row.sms_gateway || defaultSettings.smsGateway,
+    fast2SmsApiKey: row.fast2sms_api_key || defaultSettings.fast2SmsApiKey,
+    twilioSid: row.twilio_sid || defaultSettings.twilioSid,
+    twilioAuthToken: row.twilio_auth_token || defaultSettings.twilioAuthToken,
+    twilioFromPhone: row.twilio_from_phone || defaultSettings.twilioFromPhone,
+    autoRemindersEnabled:
+      row.auto_reminders_enabled !== null && row.auto_reminders_enabled !== undefined
+        ? Boolean(row.auto_reminders_enabled)
+        : defaultSettings.autoRemindersEnabled,
+    reminderHoursBefore:
+      row.reminder_hours_before !== null && row.reminder_hours_before !== undefined
+        ? Number(row.reminder_hours_before)
+        : defaultSettings.reminderHoursBefore,
+  };
+}
+
 /* ─────────────────────────────────────────────────────────────────────────────
-   BOOKINGS API (WITH SUPABASE + LOCAL HYBRID SYNC)
+   BOOKINGS API (REAL SUPABASE DATABASE)
 ───────────────────────────────────────────────────────────────────────────── */
 
 export async function getBookings(): Promise<Booking[]> {
-  const supabase = getSupabase();
-  if (supabase) {
-    try {
-      const { data, error } = await supabase
-        .from("bookings")
-        .select("*")
-        .order("created_at", { ascending: false });
+  const supabase = getRequiredSupabase();
+  const { data, error } = await supabase
+    .from("bookings")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-      if (!error && Array.isArray(data)) {
-        if (data.length === 0) {
-          const local = readLocalBookings();
-          if (local.length > 0) {
-            for (const b of local) {
-              await supabase.from("bookings").upsert(bookingToRow(b));
-            }
-            memoryBookings = local;
-            return local;
-          }
-        }
-        const mapped = data.map(rowToBooking);
-        memoryBookings = mapped;
-        safeWriteJson(BOOKINGS_FILE, mapped);
-        if (!IS_SERVERLESS) safeWriteJson(BUNDLED_BOOKINGS_FILE, mapped);
-        return mapped;
-      } else if (error) {
-        console.warn("Supabase bookings fetch error:", error.message);
-      }
-    } catch (err) {
-      console.warn("Supabase connect error:", err);
-    }
+  if (error) {
+    console.error("Supabase bookings fetch error:", error.message);
+    throw new Error(`Failed to fetch bookings from Supabase: ${error.message}`);
   }
 
-  // Fallback to local disk file
-  const local = readLocalBookings();
-  memoryBookings = local;
-  return local;
-}
-
-export function getBookingsSync(): Booking[] {
-  return readLocalBookings();
+  return (data || []).map(rowToBooking);
 }
 
 export async function saveBooking(booking: Booking): Promise<Booking> {
-  const supabase = getSupabase();
-  if (supabase) {
-    try {
-      const row = bookingToRow(booking);
-      const { error } = await supabase.from("bookings").upsert(row);
-      if (error) console.warn("Supabase bookings upsert warning:", error.message);
-    } catch (err) {
-      console.warn("Supabase upsert error:", err);
-    }
-  }
+  const supabase = getRequiredSupabase();
+  const row = bookingToRow(booking);
+  const { error } = await supabase.from("bookings").upsert(row);
 
-  // Always update local disk and memory cache
-  const bookings = readLocalBookings();
-  const idx = bookings.findIndex((b) => b.id === booking.id);
-  if (idx >= 0) {
-    bookings[idx] = booking;
-  } else {
-    bookings.unshift(booking);
+  if (error) {
+    console.error("Supabase booking upsert error:", error.message);
+    throw new Error(`Failed to save booking to Supabase: ${error.message}`);
   }
-  memoryBookings = bookings;
-  safeWriteJson(BOOKINGS_FILE, bookings);
-  if (!IS_SERVERLESS) safeWriteJson(BUNDLED_BOOKINGS_FILE, bookings);
 
   return booking;
 }
@@ -313,19 +267,27 @@ export async function updateBookingStatus(
   status: Booking["status"],
   paymentStatus?: Booking["paymentStatus"]
 ): Promise<Booking | null> {
-  const bookings = await getBookings();
-  const booking = bookings.find((b) => b.id === id);
-  if (!booking) return null;
-
-  booking.status = status;
+  const supabase = getRequiredSupabase();
+  const patch: Record<string, any> = { status };
   if (paymentStatus) {
-    booking.paymentStatus = paymentStatus;
+    patch.payment_status = paymentStatus;
   }
 
-  return await saveBooking(booking);
+  const { data, error } = await supabase
+    .from("bookings")
+    .update(patch)
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Supabase updateBookingStatus error:", error.message);
+    throw new Error(`Failed to update booking status in Supabase: ${error.message}`);
+  }
+
+  return data ? rowToBooking(data) : null;
 }
 
-// Record return with inspection notes & deposit refund
 export async function recordBookingReturn(
   id: string,
   options: {
@@ -335,24 +297,35 @@ export async function recordBookingReturn(
     paymentStatus?: Booking["paymentStatus"];
   }
 ): Promise<Booking | null> {
-  const bookings = await getBookings();
-  const booking = bookings.find((b) => b.id === id);
-  if (!booking) return null;
-
-  booking.status = "returned";
-  booking.depositRefunded = options.depositRefunded;
-  booking.depositDeduction = options.depositDeduction;
-  booking.inspectionNotes = options.inspectionNotes;
-  booking.returnedAt = new Date().toISOString();
+  const supabase = getRequiredSupabase();
+  const patch: Record<string, any> = {
+    status: "returned",
+    deposit_refunded: options.depositRefunded,
+    deposit_deduction: options.depositDeduction,
+    inspection_notes: options.inspectionNotes,
+    returned_at: new Date().toISOString(),
+  };
   if (options.paymentStatus) {
-    booking.paymentStatus = options.paymentStatus;
+    patch.payment_status = options.paymentStatus;
   }
 
-  return await saveBooking(booking);
+  const { data, error } = await supabase
+    .from("bookings")
+    .update(patch)
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Supabase recordBookingReturn error:", error.message);
+    throw new Error(`Failed to record booking return in Supabase: ${error.message}`);
+  }
+
+  return data ? rowToBooking(data) : null;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   DATE AVAILABILITY & DOUBLE-BOOKING PREVENTION ENGINE
+   DATE AVAILABILITY & DOUBLE-BOOKING PREVENTION
 ───────────────────────────────────────────────────────────────────────────── */
 
 export async function checkDateAvailability(
@@ -402,54 +375,32 @@ export async function getCostumeReservedDateRanges(costumeId: string): Promise<
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   INVENTORY OVERRIDES (LIVE PRICES & AVAILABILITY)
+   INVENTORY OVERRIDES (REAL SUPABASE DATABASE)
 ───────────────────────────────────────────────────────────────────────────── */
 
 export async function getInventoryOverrides(): Promise<Record<string, InventoryOverride>> {
-  const supabase = getSupabase();
-  if (supabase) {
-    try {
-      const { data, error } = await supabase.from("inventory_overrides").select("*");
-      if (!error && Array.isArray(data)) {
-        const map: Record<string, InventoryOverride> = {};
-        data.forEach((row: any) => {
-          map[row.costume_id] = {
-            id: row.costume_id,
-            price: row.price !== null ? Number(row.price) : undefined,
-            securityDeposit: row.security_deposit !== null ? Number(row.security_deposit) : undefined,
-            isAvailable: row.is_available ?? true,
-            isFeatured: row.is_featured ?? false,
-            updatedAt: row.updated_at,
-          };
-        });
-        memoryInventory = map;
-        safeWriteJson(INVENTORY_FILE, map);
-        return map;
-      }
-    } catch {}
+  const supabase = getRequiredSupabase();
+  const { data, error } = await supabase.from("inventory_overrides").select("*");
+
+  if (error) {
+    console.error("Supabase inventory_overrides fetch error:", error.message);
+    throw new Error(`Failed to fetch inventory overrides from Supabase: ${error.message}`);
   }
 
-  try {
-    if (fs.existsSync(INVENTORY_FILE)) {
-      const parsed = JSON.parse(fs.readFileSync(INVENTORY_FILE, "utf8"));
-      if (parsed && typeof parsed === "object") {
-        memoryInventory = parsed;
-        return memoryInventory!;
-      }
-    }
-  } catch {}
+  const map: Record<string, InventoryOverride> = {};
+  (data || []).forEach((row: any) => {
+    map[row.costume_id] = {
+      id: row.costume_id,
+      price: row.price !== null ? Number(row.price) : undefined,
+      securityDeposit: row.security_deposit !== null ? Number(row.security_deposit) : undefined,
+      isAvailable: row.is_available ?? true,
+      isFeatured: row.is_featured ?? false,
+      updatedAt: row.updated_at,
+    };
+  });
 
-  try {
-    if (fs.existsSync(BUNDLED_INVENTORY_FILE)) {
-      const parsed = JSON.parse(fs.readFileSync(BUNDLED_INVENTORY_FILE, "utf8"));
-      if (parsed && typeof parsed === "object") {
-        memoryInventory = parsed;
-        return memoryInventory!;
-      }
-    }
-  } catch {}
-
-  return memoryInventory || {};
+  cachedInventory = map;
+  return map;
 }
 
 export async function updateInventoryPrice(
@@ -459,35 +410,32 @@ export async function updateInventoryPrice(
   isAvailable?: boolean,
   isFeatured?: boolean
 ): Promise<InventoryOverride> {
-  const overrides = await getInventoryOverrides();
+  const supabase = getRequiredSupabase();
   const updatedItem: InventoryOverride = {
     id: costumeId,
     price,
-    securityDeposit: securityDeposit !== undefined ? securityDeposit : overrides[costumeId]?.securityDeposit,
-    isAvailable: isAvailable !== undefined ? isAvailable : overrides[costumeId]?.isAvailable,
-    isFeatured: isFeatured !== undefined ? isFeatured : overrides[costumeId]?.isFeatured,
+    securityDeposit,
+    isAvailable: isAvailable ?? true,
+    isFeatured: isFeatured ?? false,
     updatedAt: new Date().toISOString(),
   };
 
-  const supabase = getSupabase();
-  if (supabase) {
-    try {
-      await supabase.from("inventory_overrides").upsert({
-        costume_id: costumeId,
-        price,
-        security_deposit: updatedItem.securityDeposit,
-        is_available: updatedItem.isAvailable,
-        is_featured: updatedItem.isFeatured,
-        updated_at: updatedItem.updatedAt,
-      });
-    } catch {}
+  const { error } = await supabase.from("inventory_overrides").upsert({
+    costume_id: costumeId,
+    price,
+    security_deposit: updatedItem.securityDeposit,
+    is_available: updatedItem.isAvailable,
+    is_featured: updatedItem.isFeatured,
+    updated_at: updatedItem.updatedAt,
+  });
+
+  if (error) {
+    console.error("Supabase updateInventoryPrice error:", error.message);
+    throw new Error(`Failed to update inventory price in Supabase: ${error.message}`);
   }
 
-  overrides[costumeId] = updatedItem;
-  memoryInventory = overrides;
-  safeWriteJson(INVENTORY_FILE, overrides);
-  if (!IS_SERVERLESS) safeWriteJson(BUNDLED_INVENTORY_FILE, overrides);
-
+  if (!cachedInventory) cachedInventory = {};
+  cachedInventory[costumeId] = updatedItem;
   return updatedItem;
 }
 
@@ -508,167 +456,145 @@ export async function getLiveProducts(): Promise<
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   SMS LOGS & REMINDERS
+   SMS LOGS (REAL SUPABASE DATABASE)
 ───────────────────────────────────────────────────────────────────────────── */
 
 export async function getSmsLogs(): Promise<SmsLog[]> {
-  const supabase = getSupabase();
-  if (supabase) {
-    try {
-      const { data, error } = await supabase
-        .from("sms_logs")
-        .select("*")
-        .order("timestamp", { ascending: false });
+  const supabase = getRequiredSupabase();
+  const { data, error } = await supabase
+    .from("sms_logs")
+    .select("*")
+    .order("timestamp", { ascending: false });
 
-      if (!error && Array.isArray(data)) {
-        const mapped: SmsLog[] = data.map((r: any) => ({
-          id: r.id,
-          bookingId: r.booking_id,
-          customerName: r.customer_name,
-          phone: r.phone,
-          type: r.type,
-          message: r.message,
-          status: r.status,
-          gateway: r.gateway,
-          timestamp: r.timestamp ? new Date(r.timestamp).toISOString().replace("T", " ").substring(0, 19) : "",
-        }));
-        memorySmsLogs = mapped;
-        safeWriteJson(SMS_LOGS_FILE, mapped);
-        return mapped;
-      }
-    } catch {}
+  if (error) {
+    console.error("Supabase sms_logs fetch error:", error.message);
+    throw new Error(`Failed to fetch SMS logs from Supabase: ${error.message}`);
   }
 
-  try {
-    if (fs.existsSync(SMS_LOGS_FILE)) {
-      const parsed = JSON.parse(fs.readFileSync(SMS_LOGS_FILE, "utf8"));
-      if (Array.isArray(parsed)) {
-        memorySmsLogs = parsed;
-        return memorySmsLogs!;
-      }
-    }
-  } catch {}
-
-  try {
-    if (fs.existsSync(BUNDLED_SMS_LOGS_FILE)) {
-      const parsed = JSON.parse(fs.readFileSync(BUNDLED_SMS_LOGS_FILE, "utf8"));
-      if (Array.isArray(parsed)) {
-        memorySmsLogs = parsed;
-        return memorySmsLogs!;
-      }
-    }
-  } catch {}
-
-  return memorySmsLogs || [];
+  return (data || []).map((r: any) => ({
+    id: r.id,
+    bookingId: r.booking_id,
+    customerName: r.customer_name,
+    phone: r.phone,
+    type: r.type,
+    message: r.message,
+    status: r.status,
+    gateway: r.gateway,
+    timestamp: r.timestamp ? new Date(r.timestamp).toISOString().replace("T", " ").substring(0, 19) : "",
+  }));
 }
 
-export function getSmsLogsSync(): SmsLog[] {
-  try {
-    if (fs.existsSync(SMS_LOGS_FILE)) {
-      const parsed = JSON.parse(fs.readFileSync(SMS_LOGS_FILE, "utf8"));
-      if (Array.isArray(parsed)) return parsed;
-    }
-  } catch {}
-  return memorySmsLogs || [];
-}
-
-export function logSms(log: Omit<SmsLog, "id" | "timestamp">): SmsLog {
-  const logs = getSmsLogsSync();
+export async function logSms(log: Omit<SmsLog, "id" | "timestamp">): Promise<SmsLog> {
+  const supabase = getRequiredSupabase();
   const newLog: SmsLog = {
     ...log,
     id: `sms-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
     timestamp: new Date().toISOString().replace("T", " ").substring(0, 19),
   };
 
-  const supabase = getSupabase();
-  if (supabase) {
-    Promise.resolve(
-      supabase.from("sms_logs").insert({
-        id: newLog.id,
-        booking_id: newLog.bookingId,
-        customer_name: newLog.customerName,
-        phone: newLog.phone,
-        type: newLog.type,
-        message: newLog.message,
-        status: newLog.status,
-        gateway: newLog.gateway,
-        timestamp: new Date().toISOString(),
-      })
-    ).catch(() => {});
-  }
+  const { error } = await supabase.from("sms_logs").insert({
+    id: newLog.id,
+    booking_id: newLog.bookingId,
+    customer_name: newLog.customerName,
+    phone: newLog.phone,
+    type: newLog.type,
+    message: newLog.message,
+    status: newLog.status,
+    gateway: newLog.gateway,
+    timestamp: new Date().toISOString(),
+  });
 
-  logs.unshift(newLog);
-  memorySmsLogs = logs;
-  safeWriteJson(SMS_LOGS_FILE, logs);
-  if (!IS_SERVERLESS) safeWriteJson(BUNDLED_SMS_LOGS_FILE, logs);
+  if (error) {
+    console.warn("Supabase logSms warning:", error.message);
+  }
 
   return newLog;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   ADMIN SETTINGS
+   ADMIN SETTINGS (REAL SUPABASE DATABASE)
 ───────────────────────────────────────────────────────────────────────────── */
 
-export function getSettings(): AdminSettings {
-  if (memorySettings) return memorySettings;
-  try {
-    if (fs.existsSync(SETTINGS_FILE)) {
-      const parsed = JSON.parse(fs.readFileSync(SETTINGS_FILE, "utf8"));
-      if (parsed && typeof parsed === "object") {
-        const merged: AdminSettings = { ...defaultSettings, ...parsed };
-        memorySettings = merged;
-        return merged;
-      }
-    }
-  } catch {}
+export async function getSettings(): Promise<AdminSettings> {
+  const supabase = getRequiredSupabase();
+  const { data, error } = await supabase
+    .from("admin_settings")
+    .select("*")
+    .eq("id", "default")
+    .maybeSingle();
 
-  try {
-    if (fs.existsSync(BUNDLED_SETTINGS_FILE)) {
-      const parsed = JSON.parse(fs.readFileSync(BUNDLED_SETTINGS_FILE, "utf8"));
-      if (parsed && typeof parsed === "object") {
-        const merged: AdminSettings = { ...defaultSettings, ...parsed };
-        memorySettings = merged;
-        return merged;
-      }
-    }
-  } catch {}
+  if (error) {
+    console.error("Supabase getSettings error:", error.message);
+    if (cachedSettings) return cachedSettings;
+    return defaultSettings;
+  }
 
+  if (data) {
+    const parsed = rowToSettings(data);
+    cachedSettings = parsed;
+    return parsed;
+  }
+
+  // Insert default settings row if none exists
+  await supabase.from("admin_settings").insert({
+    id: "default",
+    store_name: defaultSettings.storeName,
+    store_phone: defaultSettings.storePhone,
+    store_address: defaultSettings.storeAddress,
+    default_security_deposit: defaultSettings.defaultSecurityDeposit,
+    razorpay_key_id: defaultSettings.razorpayKeyId,
+    razorpay_key_secret: defaultSettings.razorpayKeySecret,
+    razorpay_test_mode: defaultSettings.razorpayTestMode,
+    upi_id: defaultSettings.upiId,
+    sms_gateway: defaultSettings.smsGateway,
+    fast2sms_api_key: defaultSettings.fast2SmsApiKey,
+    twilio_sid: defaultSettings.twilioSid,
+    twilio_auth_token: defaultSettings.twilioAuthToken,
+    twilio_from_phone: defaultSettings.twilioFromPhone,
+    auto_reminders_enabled: defaultSettings.autoRemindersEnabled,
+    reminder_hours_before: defaultSettings.reminderHoursBefore,
+    updated_at: new Date().toISOString(),
+  });
+
+  cachedSettings = defaultSettings;
   return defaultSettings;
 }
 
-export async function updateSettings(settings: Partial<AdminSettings>): Promise<AdminSettings> {
-  const current = await getSettings();
-  const updated = { ...current, ...settings };
+export function getSettingsSync(): AdminSettings {
+  return cachedSettings || defaultSettings;
+}
 
-  const supabase = getSupabase();
-  if (supabase) {
-    try {
-      await supabase.from("admin_settings").upsert({
-        id: "default",
-        store_name: updated.storeName,
-        store_phone: updated.storePhone,
-        store_address: updated.storeAddress,
-        default_security_deposit: updated.defaultSecurityDeposit,
-        razorpay_key_id: updated.razorpayKeyId,
-        razorpay_key_secret: updated.razorpayKeySecret,
-        razorpay_test_mode: updated.razorpayTestMode,
-        upi_id: updated.upiId,
-        sms_gateway: updated.smsGateway,
-        fast2sms_api_key: updated.fast2SmsApiKey,
-        twilio_sid: updated.twilioSid,
-        twilio_auth_token: updated.twilioAuthToken,
-        twilio_from_phone: updated.twilioFromPhone,
-        auto_reminders_enabled: updated.autoRemindersEnabled,
-        reminder_hours_before: updated.reminderHoursBefore,
-        updated_at: new Date().toISOString(),
-      });
-    } catch {}
+export async function updateSettings(settings: Partial<AdminSettings>): Promise<AdminSettings> {
+  const supabase = getRequiredSupabase();
+  const current = await getSettings();
+  const updated: AdminSettings = { ...current, ...settings };
+
+  const { error } = await supabase.from("admin_settings").upsert({
+    id: "default",
+    store_name: updated.storeName,
+    store_phone: updated.storePhone,
+    store_address: updated.storeAddress,
+    default_security_deposit: updated.defaultSecurityDeposit,
+    razorpay_key_id: updated.razorpayKeyId,
+    razorpay_key_secret: updated.razorpayKeySecret,
+    razorpay_test_mode: updated.razorpayTestMode,
+    upi_id: updated.upiId,
+    sms_gateway: updated.smsGateway,
+    fast2sms_api_key: updated.fast2SmsApiKey,
+    twilio_sid: updated.twilioSid,
+    twilio_auth_token: updated.twilioAuthToken,
+    twilio_from_phone: updated.twilioFromPhone,
+    auto_reminders_enabled: updated.autoRemindersEnabled,
+    reminder_hours_before: updated.reminderHoursBefore,
+    updated_at: new Date().toISOString(),
+  });
+
+  if (error) {
+    console.error("Supabase updateSettings error:", error.message);
+    throw new Error(`Failed to update settings in Supabase: ${error.message}`);
   }
 
-  memorySettings = updated;
-  safeWriteJson(SETTINGS_FILE, updated);
-  if (!IS_SERVERLESS) safeWriteJson(BUNDLED_SETTINGS_FILE, updated);
-
+  cachedSettings = updated;
   return updated;
 }
 
@@ -704,6 +630,6 @@ export async function getAnalytics() {
     overdueReturns,
     totalDepositsHeld,
     categoryRevenue,
-    isSupabase: isSupabaseConfigured(),
+    isSupabase: true,
   };
 }
