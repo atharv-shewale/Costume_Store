@@ -16,8 +16,6 @@ import {
   Phone,
   User,
   Mail,
-  FileText,
-  Upload,
   Printer,
   FileCheck,
 } from "lucide-react";
@@ -54,9 +52,6 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
   const [email, setEmail] = useState("");
   const [deliveryType, setDeliveryType] = useState<"store-pickup" | "home-delivery">("store-pickup");
   const [address, setAddress] = useState("");
-  const [idProofType, setIdProofType] = useState("Aadhaar Card");
-  const [idProofNumber, setIdProofNumber] = useState("");
-  const [idProofImage, setIdProofImage] = useState<string | null>(null);
   const [agreementChecked, setAgreementChecked] = useState(true);
   const [notes, setNotes] = useState("");
 
@@ -169,21 +164,6 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
   }, []);
 
   if (!product) return null;
-
-  const handleIdUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        setError("ID file size must be under 2MB");
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setIdProofImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   async function handleBookingSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -300,8 +280,6 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
           paymentStatus: paymentMethod === "cash" ? "pending" : "paid",
           paymentId,
           notes,
-          idProofType,
-          idProofUrl: idProofImage || idProofNumber || undefined,
           agreementAccepted: agreementChecked,
         }),
       });
@@ -599,67 +577,17 @@ export default function BookingModal({ product, onClose, onSuccess }: BookingMod
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Email Address</label>
-                  <div className="relative">
-                    <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input
-                      type="email"
-                      placeholder="name@gmail.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full text-sm pl-9 pr-3 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#9b2335]"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Govt ID Type</label>
-                  <select
-                    value={idProofType}
-                    onChange={(e) => setIdProofType(e.target.value)}
-                    className="w-full text-sm p-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#9b2335] bg-white"
-                  >
-                    <option value="Aadhaar Card">Aadhaar Card</option>
-                    <option value="Driving License">Driving License</option>
-                    <option value="Voter ID">Voter ID</option>
-                    <option value="Student ID">Student ID</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* ID Proof Number & Photo Upload */}
-              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                    <FileText size={14} className="text-[#9b2335]" />
-                    {idProofType} Verification (Quick Verification)
-                  </label>
-                  <span className="text-[10px] text-slate-500">Security Requirement</span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Email Address (Optional)</label>
+                <div className="relative">
+                  <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input
-                    type="text"
-                    placeholder={`Enter ${idProofType} number`}
-                    value={idProofNumber}
-                    onChange={(e) => setIdProofNumber(e.target.value)}
-                    className="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#9b2335]"
+                    type="email"
+                    placeholder="name@gmail.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full text-sm pl-9 pr-3 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#9b2335]"
                   />
-
-                  <div className="relative">
-                    <label className="flex items-center justify-center gap-2 w-full text-xs p-2.5 rounded-xl border border-dashed border-slate-400 hover:border-[#9b2335] bg-white cursor-pointer text-slate-600 transition-all">
-                      <Upload size={14} />
-                      <span>{idProofImage ? "✓ ID Photo Attached" : "Upload ID Photo"}</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleIdUpload}
-                        className="hidden"
-                      />
-                    </label>
-                  </div>
                 </div>
               </div>
 
